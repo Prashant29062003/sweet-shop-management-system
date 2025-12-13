@@ -6,13 +6,13 @@
     "sweet-shop",
     "management-system"
   ],
-  "homepage": "https://github.com/Prashant1062003/sweet-shop-management-system#readme",
+  "homepage": "https://github.com/Prashant29062003/sweet-shop-management-system#readme",
   "bugs": {
-    "url": "https://github.com/Prashant1062003/sweet-shop-management-system/issues"
+    "url": "https://github.com/Prashant29062003/sweet-shop-management-system/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Prashant1062003/sweet-shop-management-system.git"
+    "url": "git+https://github.com/Prashant29062003/sweet-shop-management-system.git"
   },
   "license": "MIT",
   "author": "Prashant Kumar",
@@ -20,5 +20,18 @@
   "main": "src/server.js",
   "scripts": {
     "test": "jest"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.1.4"
   }
 }
