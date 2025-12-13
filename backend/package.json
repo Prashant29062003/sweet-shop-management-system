@@ -1,0 +1,24 @@
+{
+  "name": "sweet-shop-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Sweet Shop Management System",
+  "keywords": [
+    "sweet-shop",
+    "management-system"
+  ],
+  "homepage": "https://github.com/Prashant1062003/sweet-shop-management-system#readme",
+  "bugs": {
+    "url": "https://github.com/Prashant1062003/sweet-shop-management-system/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Prashant1062003/sweet-shop-management-system.git"
+  },
+  "license": "MIT",
+  "author": "Prashant Kumar",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "jest"
+  }
+}
