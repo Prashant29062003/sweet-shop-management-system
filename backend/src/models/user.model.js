@@ -64,9 +64,9 @@ UserSchema.pre("save", async function() {
 });
 
 // add methods 
-UserSchema.methods.isPasswordCorrect = async function(password){
+UserSchema.methods.isPasswordCorrect = async function(enteredPassword){
     // this gives true or false as it compares and check, password same or not.
-    return await bcrypt.compare(password, this.password)
+    return await bcrypt.compare(enteredPassword, this.password)
 }
 
 // Access Token
@@ -75,7 +75,7 @@ UserSchema.methods.generateAccessToken = function(){
         {
             _id: this._id,
             email: this.email,
-            username: this.username
+            role: this.role
         },
         process.env.ACCESS_TOKEN_SECRET,
         {expiresIn: process.env.ACCESS_TOKEN_EXPIRY}

@@ -21,6 +21,14 @@ describe("Auth: Register", () => {
 
 describe("Auth: Login", () => {
   it("should login an existing user", async () => {
+    // Ensure user exists for this test (tests clear DB between tests)
+    await request(app)
+      .post("/api/v1/auth/register")
+      .send({
+        email: "test@example.com",
+        password: "password123"
+      });
+
     const res = await request(app)
       .post("/api/v1/auth/login")
       .send({
@@ -29,6 +37,8 @@ describe("Auth: Login", () => {
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("token");
+    // controller returns tokens inside response data
+    expect(res.body.data).toHaveProperty("accessToken");
+    expect(res.body.data).toHaveProperty("refreshToken");
   });
 });
