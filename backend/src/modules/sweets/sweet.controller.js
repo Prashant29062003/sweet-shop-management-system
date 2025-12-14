@@ -8,23 +8,33 @@ import { asyncHandler } from "../../utils/async-handler.js";
  * Permission: CREATE_SWEET
  */
 export const createSweet = asyncHandler(async (req, res) => {
-  const { name, description, price, quantityInStock } = req.body;
+    const { name, description, price, quantityInStock } = req.body;
 
-  if (!name || price == null || quantityInStock == null) {
-    throw new ApiError(400, "Missing required fields");
-  }
+    if (!name || price == null || quantityInStock == null) {
+        throw new ApiError(400, "Missing required fields");
+    }
 
-  const sweet = await Sweet.create({
-    name,
-    description,
-    price,
-    quantityInStock,
-    lastUpdatedByPermission: req.usedPermission,
-  });
+    const sweet = await Sweet.create({
+        name,
+        description,
+        price,
+        quantityInStock,
+        lastUpdatedByPermission: req.usedPermission,
+    });
+    
+    await logAudit({
+        user: req.user._id,
+        action: "CREATE_SWEET",
+        resourceType: "Sweet",
+        resourceId: sweet._id,
+        permissionUsed: PERMISSIONS.CREATE_SWEET,
+        metadata: { name: sweet.name }
+    });
 
-  return res.status(201).json(
-    new ApiResponse(201, sweet, "Sweet created successfully")
-  );
+
+    return res.status(201).json(
+        new ApiResponse(201, sweet, "Sweet created successfully")
+    );
 });
 
 /**
@@ -32,24 +42,24 @@ export const createSweet = asyncHandler(async (req, res) => {
  * Permission: UPDATE_SWEET
  */
 export const updateSweet = asyncHandler(async (req, res) => {
-  const { sweetId } = req.params;
+    const { sweetId } = req.params;
 
-  const sweet = await Sweet.findByIdAndUpdate(
-    sweetId,
-    {
-      ...req.body,
-      lastUpdatedByPermission: req.usedPermission,
-    },
-    { new: true }
-  );
+    const sweet = await Sweet.findByIdAndUpdate(
+        sweetId,
+        {
+        ...req.body,
+        lastUpdatedByPermission: req.usedPermission,
+        },
+        { new: true }
+    );
 
-  if (!sweet) {
-    throw new ApiError(404, "Sweet not found");
-  }
+    if (!sweet) {
+        throw new ApiError(404, "Sweet not found");
+    }
 
-  return res.json(
-    new ApiResponse(200, sweet, "Sweet updated successfully")
-  );
+    return res.json(
+        new ApiResponse(200, sweet, "Sweet updated successfully")
+    );
 });
 
 /**
@@ -57,27 +67,27 @@ export const updateSweet = asyncHandler(async (req, res) => {
  * Permission: UPDATE_INVENTORY
  */
 export const updateInventory = asyncHandler(async (req, res) => {
-  const { sweetId } = req.params;
-  const { quantityInStock } = req.body;
+    const { sweetId } = req.params;
+    const { quantityInStock } = req.body;
 
-  if (quantityInStock == null) {
-    throw new ApiError(400, "quantityInStock is required");
-  }
+    if (quantityInStock == null) {
+        throw new ApiError(400, "quantityInStock is required");
+    }
 
-  const sweet = await Sweet.findByIdAndUpdate(
-    sweetId,
-    {
-      quantityInStock,
-      lastUpdatedByPermission: req.usedPermission,
-    },
-    { new: true }
-  );
+    const sweet = await Sweet.findByIdAndUpdate(
+        sweetId,
+        {
+        quantityInStock,
+        lastUpdatedByPermission: req.usedPermission,
+        },
+        { new: true }
+    );
 
-  if (!sweet) {
-    throw new ApiError(404, "Sweet not found");
-  }
+    if (!sweet) {
+        throw new ApiError(404, "Sweet not found");
+    }
 
-  return res.json(
-    new ApiResponse(200, sweet, "Inventory updated successfully")
-  );
+    return res.json(
+        new ApiResponse(200, sweet, "Inventory updated successfully")
+    );
 });
