@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { PERMISSIONS, TaskStatusEnum, AvailableTaskStatuses } from "../utils/constants/permissions";
+import { PERMISSIONS, TaskStatusEnum, AvailableTaskStatuses } from "../utils/constants/permissions.js";
 
 // sub-schema for tracking production tasks related to the sweet
 const taskSchema = new mongoose.Schema({

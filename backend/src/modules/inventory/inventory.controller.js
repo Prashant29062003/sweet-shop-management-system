@@ -1,4 +1,4 @@
-import { Sweet } from "../sweets/sweet.model.js";
+import { Sweet } from "../../models/sweet.model.js";
 import { ApiResponse } from "../../utils/api-response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 

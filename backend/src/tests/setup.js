@@ -4,16 +4,6 @@ dotenv.config({ path: ".env" });
 
 process.env.NODE_ENV = "test";
 
-// Ensure secrets exist for JWT generation during tests
-if (!process.env.ACCESS_TOKEN_SECRET) {
-    process.env.ACCESS_TOKEN_SECRET = 'TEST_ACCESS_SECRET_0123456789ABCDEF';
-}
-// process.env.ACCESS_TOKEN_EXPIRY = '1d';
-if (!process.env.REFRESH_TOKEN_SECRET) {
-    process.env.REFRESH_TOKEN_SECRET = 'TEST_REFRESH_SECRET_FEDCBA9876543210';
-}
-// process.env.REFRESH_TOKEN_EXPIRY = '10d';
-
 let mongoServer;
 
 beforeAll(async () => {
