@@ -21,7 +21,7 @@ export const createSweet = asyncHandler(async (req, res) => {
         quantityInStock,
         lastUpdatedByPermission: req.usedPermission,
     });
-    
+
     await logAudit({
         user: req.user._id,
         action: "CREATE_SWEET",
@@ -91,3 +91,42 @@ export const updateInventory = asyncHandler(async (req, res) => {
         new ApiResponse(200, sweet, "Inventory updated successfully")
     );
 });
+
+
+export const addProductionTask = async (req, res) => {
+  const { sweetId } = req.params;
+  const { title, assignedTo, dueDate } = req.body;
+
+  const sweet = await Sweet.findById(sweetId);
+  if (!sweet) throw new ApiError(404, "Sweet not found");
+
+  sweet.productionTasks.push({
+    title,
+    assignedTo,
+    dueDate
+  });
+
+  await sweet.save();
+
+  res.status(201).json({ success: true, data: sweet });
+};
+
+export const updateTaskStatus = async (req, res) => {
+  const { sweetId, taskIndex } = req.params;
+  const { status } = req.body;
+
+  const sweet = await Sweet.findById(sweetId);
+  const task = sweet.productionTasks[taskIndex];
+
+  if (
+    task.assignedTo.toString() !== req.user._id.toString() &&
+    req.user.role !== "admin"
+  ) {
+    throw new ApiError(403, "Not allowed to update this task");
+  }
+
+  task.status = status;
+  await sweet.save();
+
+  res.json({ success: true, data: task });
+};
