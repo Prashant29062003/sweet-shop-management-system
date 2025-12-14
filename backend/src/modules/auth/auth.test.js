@@ -1,11 +1,7 @@
-import supertest from "supertest";
-import app from "../../app";
-import mongoose from "mongoose";
+import request from "supertest";
+import app from "../../app.js";
 
 describe("Auth: Register", () => {
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
 
   it("should register a new user", async () => {
     const res = await request(app)
@@ -16,6 +12,10 @@ describe("Auth: Register", () => {
       });
 
     expect(res.statusCode).toBe(201);
-    expect(res.body).toHaveProperty("email", "test@example.com");
-  });
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.user).toHaveProperty("_id");
+    expect(res.body.data.user.email).toBe("test@example.com");
+    expect(res.body.data.user.role).toBe("user");
+      });
 });
+
