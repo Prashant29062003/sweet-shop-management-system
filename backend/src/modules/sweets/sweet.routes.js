@@ -1,44 +1,45 @@
 import express from "express";
+import { verifyJWT } from "../../middlewares/auth.middleware.js";
+import { checkPermission } from "../../middlewares/permission.middleware.js";
+import { PERMISSIONS } from "../../utils/constants/permissions.js";
+
 import {
   createSweet,
-  getAllSweets,
   updateSweet,
-  deleteSweet
+  updateInventory,
 } from "./sweet.controller.js";
-
-import { verifyJWT } from "../../middlewares/auth.middleware.js";
-import { authorizeRoles } from "../../middlewares/rbac.middleware.js";
 
 const router = express.Router();
 
-// Public or logged-in users
-router.get(
-  "/",
-  verifyJWT,
-  authorizeRoles("user", "admin"),
-  getAllSweets
-);
-
-// Admin only
+/**
+ * CREATE SWEET
+ * Admin, Staff
+ */
 router.post(
   "/",
   verifyJWT,
-  authorizeRoles("admin"),
+  checkPermission(PERMISSIONS.CREATE_SWEET),
   createSweet
 );
 
+/**
+ * UPDATE SWEET DETAILS (name, price, description)
+ */
 router.put(
-  "/:id",
+  "/:sweetId",
   verifyJWT,
-  authorizeRoles("admin"),
+  checkPermission(PERMISSIONS.UPDATE_SWEET),
   updateSweet
 );
 
-router.delete(
-  "/:id",
+/**
+ * UPDATE INVENTORY ONLY
+ */
+router.patch(
+  "/:sweetId/inventory",
   verifyJWT,
-  authorizeRoles("admin"),
-  deleteSweet
+  checkPermission(PERMISSIONS.UPDATE_INVENTORY),
+  updateInventory
 );
 
 export default router;
