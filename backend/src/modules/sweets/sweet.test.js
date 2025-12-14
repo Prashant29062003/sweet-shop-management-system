@@ -26,3 +26,17 @@ describe("Sweet Module", () => {
   });
 
 });
+
+describe("Sweet Permissions", () => {
+  it("should block non-admin from creating sweet", async () => {
+    const userToken = await getUserToken("user");
+
+    const res = await request(app)
+      .post("/api/v1/sweets")
+      .set("Authorization", `Bearer ${userToken}`)
+      .send({ name: "Ladoo", price: 20 });
+
+    expect(res.statusCode).toBe(403);
+  });
+});
+
