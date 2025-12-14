@@ -19,3 +19,16 @@ describe("Auth: Register", () => {
       });
 });
 
+describe("Auth: Login", () => {
+  it("should login an existing user", async () => {
+    const res = await request(app)
+      .post("/api/v1/auth/login")
+      .send({
+        email: "test@example.com",
+        password: "password123"
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("token");
+  });
+});
