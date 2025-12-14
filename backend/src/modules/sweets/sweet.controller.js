@@ -13,6 +13,9 @@ export const createSweet = asyncHandler(async (req, res) => {
     if (!name || price == null || quantityInStock == null) {
         throw new ApiError(400, "Missing required fields");
     }
+    if (quantityInStock < 0) {
+        throw new ApiError(400, "Inventory cannot be negative");
+    }
 
     const sweet = await Sweet.create({
         name,
@@ -73,6 +76,9 @@ export const updateInventory = asyncHandler(async (req, res) => {
     if (quantityInStock == null) {
         throw new ApiError(400, "quantityInStock is required");
     }
+    if (quantityInStock < 0) {
+        throw new ApiError(400, "Inventory cannot be negative");
+    }
 
     const sweet = await Sweet.findByIdAndUpdate(
         sweetId,
@@ -129,4 +135,27 @@ export const updateTaskStatus = async (req, res) => {
   await sweet.save();
 
   res.json({ success: true, data: task });
+};
+
+
+export const getLowStockSweets = async (req, res) => {
+  const threshold = Number(req.query.threshold || 10);
+
+  const sweets = await Sweet.find({
+    quantityInStock: { $lte: threshold }
+  });
+
+  res.json({ success: true, data: sweets });
+};
+
+export const getSweetDetails = async (req, res) => {
+  const { sweetId } = req.params;
+    const sweet = await Sweet.findById(sweetId).populate(
+        "lastUpdatedBy",
+        "username email role"
+    );
+    if (!sweet) {
+        throw new ApiError(404, "Sweet not found");
+    }
+    res.json({ success: true, data: sweet });
 };
