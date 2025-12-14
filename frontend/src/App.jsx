@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
-import AppLayout from "./layouts/AppLayout";
+import AppLayout from "./Layouts/AppLayout";
 import Login from "./pages/Login";
 import Sweets from "./pages/Sweets";
 import Inventory from "./pages/Inventory";
