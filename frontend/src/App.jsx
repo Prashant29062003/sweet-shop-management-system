@@ -1,27 +1,15 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import React from 'react';
 
-import AppLayout from "./Layouts/AppLayout";
-import Login from "./pages/Login";
-import Sweets from "./pages/Sweets";
-import Inventory from "./pages/Inventory";
-import ProtectedRoute from "./components/common/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
+import { UIProvider } from "./context/UIContext";
+import RootRouter from './components/RootRouter';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/login" element={<Login />} />
-
-            <Route element={<ProtectedRoute />}>
-              <Route path="/sweets" element={<Sweets />} />
-              <Route path="/inventory" element={<Inventory />} />
-            </Route>
-          </Route>
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+    <AuthProvider>
+      <UIProvider>
+        <RootRouter />
+      </UIProvider>
+    </AuthProvider>
   );
 }
