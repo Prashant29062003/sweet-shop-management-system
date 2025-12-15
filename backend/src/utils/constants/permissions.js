@@ -7,6 +7,7 @@ export const PERMISSIONS = {
     // Inventory Management
     VIEW_INVENTORY: "view:inventory",
     UPDATE_INVENTORY: "update:inventory",
+    MANAGE_USERS: "manage:users",
 };
 export const AvailablePermissions = Object.values(PERMISSIONS);
 
