@@ -4,12 +4,33 @@ import { checkPermission } from "../../middlewares/permission.middleware.js";
 import { PERMISSIONS } from "../../utils/constants/permissions.js";
 
 import {
+  getAllSweets,
+  getSweetById,
   createSweet,
   updateSweet,
   updateInventory,
 } from "./sweet.controller.js";
 
 const router = express.Router();
+
+/**
+ * GET ALL SWEETS
+ * Any authenticated user
+ */
+router.get(
+  "/",
+  verifyJWT,
+  getAllSweets  // ADD THIS ROUTE
+);
+
+/**
+ * GET SWEET BY ID
+ */
+router.get(
+  "/:sweetId",
+  verifyJWT,
+  getSweetById
+);
 
 /**
  * CREATE SWEET

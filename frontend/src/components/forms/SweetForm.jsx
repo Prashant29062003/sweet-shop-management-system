@@ -1,65 +1,111 @@
-import { useState } from "react";
+import React, {useState} from 'react'
+import {Card, Input, Button, Alert} from "../index"
 
-export default function SweetForm({
-  initialValues = {},
-  onSubmit,
-  submitLabel = "Save",
-}) {
-  const [form, setForm] = useState({
-    name: initialValues.name || "",
-    description: initialValues.description || "",
-    price: initialValues.price || "",
-    quantityInStock: initialValues.quantityInStock || "",
+const SweetForm = ({ sweet, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    name: sweet?.name || '',
+    description: sweet?.description || '',
+    price: sweet?.price || '',
+    quantityInStock: sweet?.quantityInStock || '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const isEdit = !!sweet;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(form);
+  const handleSubmit = async () => {
+    setError('');
+    setLoading(true);
+
+    const price = Number(formData.price);
+    const quantity = Number(formData.quantityInStock);
+
+    if(Number.isNaN(price)){
+        setError("Price must be a valid number.");
+        setLoading(false);
+        return;
+    }
+    if(Number.isNaN(quantity)){
+        setError("Quantity must be a valid number.");
+        setLoading(false);
+        return;
+    }
+
+    try {
+      await onSubmit({
+        ...formData,
+        price,
+        quantityInStock: quantity,
+      });
+      onCancel();
+    } catch (err) {
+        if (err?.response?.status === 409) {
+            setError("Sweet already exists. Please use a different name.");
+        } else {
+            setError(err.message || "Something went wrong");
+        }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded shadow">
-      <input
-        name="name"
-        placeholder="Sweet name"
-        value={form.name}
-        onChange={handleChange}
-        className="input"
-      />
+    <Card className="p-6">
+      <h3 className="text-xl font-semibold mb-6 text-gray-900">
+        {isEdit ? 'Edit Sweet' : 'Create New Sweet'}
+      </h3>
 
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={form.description}
-        onChange={handleChange}
-        className="input"
-      />
+      <div className="space-y-4">
+        <Input
+          label="Sweet Name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="e.g., Gulab Jamun"
+          disabled={loading}
+        />
 
-      <input
-        name="price"
-        type="number"
-        placeholder="Price"
-        value={form.price}
-        onChange={handleChange}
-        className="input"
-      />
+        <Input
+          label="Description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          placeholder="Brief description of the sweet"
+          disabled={loading}
+        />
 
-      <input
-        name="quantityInStock"
-        type="number"
-        placeholder="Stock"
-        value={form.quantityInStock}
-        onChange={handleChange}
-        className="input"
-      />
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Price (₹)"
+            type="number"
+            step="0.01"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            placeholder="0.00"
+            disabled={loading}
+          />
 
-      <button className="btn-primary w-full">
-        {submitLabel}
-      </button>
-    </form>
+          <Input
+            label="Initial Quantity"
+            type="number"
+            value={formData.quantityInStock}
+            onChange={(e) => setFormData({ ...formData, quantityInStock: e.target.value })}
+            placeholder="0"
+            disabled={loading || isEdit}
+          />
+        </div>
+
+        {error && <Alert variant="error">{error}</Alert>}
+
+        <div className="flex gap-3 pt-2">
+          <Button onClick={handleSubmit} disabled={loading} className="flex-1">
+            {loading ? 'Saving...' : isEdit ? 'Update Sweet' : 'Create Sweet'}
+          </Button>
+          <Button variant="secondary" onClick={onCancel} disabled={loading}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+    </Card>
   );
-}
+};
+
+export default SweetForm
