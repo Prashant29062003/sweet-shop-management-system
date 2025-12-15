@@ -1,8 +1,19 @@
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/api-error.js";
+import { asyncHandler } from "../utils/async-handler.js";
+import { User } from "../models/user.model.js";
 
-export const verifyJWT = (req, res, next) => {
+export const verifyJWT = asyncHandler(async (req, res, next) => {
     
+    const authHeader = req.headers?.authorization || req.get("Authorization");
+    const bearerToken = authHeader && authHeader.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : null;
+
+    const token = req.cookies?.accessToken || bearerToken;
+
+    if(!token){
+        throw new ApiError(401, "Unauthorized request: Token missing");
+    }
+
     // test env shortcut
     if (process.env.NODE_ENV === "test") {
         req.user = {
@@ -14,22 +25,27 @@ export const verifyJWT = (req, res, next) => {
 
     // production auth
     try {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            throw new ApiError(401, "Unauthorized: Token missing");
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        const decoded = jwt.verify(
+        const decodedToken = jwt.verify(
             token,
             process.env.ACCESS_TOKEN_SECRET
         );
+        const user = await User.findById(decodedToken._id).select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry");
 
-        req.user = decoded; // {_id, email, role}
+        if(!user){
+            throw new ApiError(401, "Invalid Access Token.");
+        }
+        req.user = user;
         next();
     } catch (error) {
         next(new ApiError(401, "Unauthorized: Invalid token"));
     }
+});
+
+export const authorizeRoles = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return next(new ApiError(403, "Forbidden: Access is denied"));
+        }
+        next();
+    };
 };

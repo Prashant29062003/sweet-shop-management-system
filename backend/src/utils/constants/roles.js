@@ -3,7 +3,7 @@ import { PERMISSIONS, AvailablePermissions } from "./permissions.js";
 export const USER_ROLES = {
     ADMIN: "admin",
     STAFF: "staff",
-    USER: "user",
+    USER: "customer",
 };
 export const AvailableUserRoles = Object.values(USER_ROLES);
 
@@ -15,11 +15,9 @@ export const ROLE_PERMISSIONS = {
     [USER_ROLES.STAFF]: [
         PERMISSIONS.VIEW_INVENTORY,
         PERMISSIONS.UPDATE_INVENTORY,
-        PERMISSIONS.UPDATE_SWEET,
-        PERMISSIONS.CREATE_SWEET
     ],
     [USER_ROLES.USER]: [
-        "view:ownProfile" 
+        // No special permissions for regular users
     ],
 };
 
