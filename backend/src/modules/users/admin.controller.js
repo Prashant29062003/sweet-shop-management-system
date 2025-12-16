@@ -1,4 +1,5 @@
 import { User } from "../../models/user.model.js";
+import { Sweet } from "../../models/sweet.model.js";
 import { ApiError } from "../../utils/api-error.js";
 import { ApiResponse } from "../../utils/api-response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
@@ -12,8 +13,8 @@ export const createUserWithRole = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid role");
   }
 
-  const exists = await User.findOne({ 
-    $or: [{ email }, { username }] 
+  const exists = await User.findOne({
+    $or: [{ email }, { username }],
   });
 
   if (exists) {
@@ -29,18 +30,75 @@ export const createUserWithRole = asyncHandler(async (req, res) => {
   });
 
   const safeUser = await User.findById(user._id).select(
-    -password -refreshAccessToken -emailverificationToken -emailVerificationExpiry
-  )
-
-  return res.status(201).json(
-    new ApiResponse(201, safeUser, "User created successfully")
+    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
   );
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, safeUser, "User created successfully"));
 });
 
 export const getAllUsers = asyncHandler(async (_req, res) => {
-  const users = await User.find().select("-password -refreshAccessToken -emailVerificationToken -emailVerificationExpiry");
-  
+  const users = await User.find().select(
+    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, users, "All users fetched successfully"));
+});
+
+export const getDashboardStats = asyncHandler(async (req, res) => {
+  const totalUsers = await User.countDocuments();
+  const totalSweets = await Sweet.countDocuments();
+
+  const lowStockItems = await Sweet.countDocuments({
+    quantityInStock: { $lt: 10 },
+  });
+
   return res.status(200).json(
-    new ApiResponse(200, users, "All users fetched successfully")
+    new ApiResponse(
+      200,
+      {
+        totalUsers,
+        totalSweets,
+        lowStockItems,
+      },
+      "Dashboard stats fetched successfully"
+    )
+  );
+});
+
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const user = await User.findByIdAndDelete(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, {}, "User deleted successfully")
+  );
+});
+
+export const updateUserRole = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { role } = req.body;
+
+  if (!ROLE_PERMISSIONS[role]) {
+    throw new ApiError(400, "Invalid role provided");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: { role } },
+    { new: true }
+  ).select("-password");
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "User role updated successfully")
   );
 });
