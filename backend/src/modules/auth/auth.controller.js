@@ -2,9 +2,9 @@ import { ApiResponse } from "../../utils/api-response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { ApiError } from "../../utils/api-error.js";
 import { emailVerificationMailgenContent, forgotPasswordMailgenContent, sendEmail } from "../../utils/mail.js";
-// import jwt from "jsonwebtoken";
-// import * as crypto from "node:crypto";
-// import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import * as crypto from "node:crypto";
+import bcrypt from "bcrypt";
 import { User } from "../../models/user.model.js";
 import { ROLE_PERMISSIONS } from "../../utils/constants/roles.js";
 
@@ -61,7 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
     subject: "Please verify your email",
     mailgenContent: emailVerificationMailgenContent(
       user.username,
-      `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unHashedToken}`,
+      `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unHashedToken}`,
     ),
   });
 
@@ -79,7 +79,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { user: createUser },
+        { user: safeUser },
         "User registered successfully and verifcation email has been sent on you email.",
       ),
     );
@@ -106,6 +106,10 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (!isPasswordValid) {
     throw new ApiError(400, "Invalid credentials.");
+  }
+
+  if(!user.isEmailVerified){
+    throw new ApiError(403, "Please verify your email before logging in.");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
@@ -279,7 +283,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-    const user = await User.User.findById(decodedToken?._id);
+    const user = await User.findById(decodedToken?._id);
     if(!user){
       throw new ApiError(401, "Invalid refresh token");
     }
@@ -363,7 +367,7 @@ const resetForgotPassword = asyncHandler (async (req, res) => {
   })
 
   if(!user){
-    throw new ApiError(489, "token is invalid or expired")
+    throw new ApiError(400, "token is invalid or expired")
   }
 
   user.forgotPasswordExpiry = undefined

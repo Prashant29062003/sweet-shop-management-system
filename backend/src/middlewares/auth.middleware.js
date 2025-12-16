@@ -10,8 +10,11 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
     const token = req.cookies?.accessToken || bearerToken;
 
-    if(!token){
-        throw new ApiError(401, "Unauthorized request: Token missing");
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized request: Token missing"
+        });
     }
 
     // test env shortcut

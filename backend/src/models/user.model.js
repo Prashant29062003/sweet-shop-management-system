@@ -5,38 +5,38 @@ import * as crypto from "node:crypto";
 
 const UserSchema = new Schema (
     {
-    username: {
-        type: String,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        index: true
-    },
-    fullname: {
-        type: String,
-        trim: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-    },
-    password: {
-        type: String,
-        required: [true, "Password is required!"]
-    },
-    role: {
-        type: String,
-        enum: ["admin", "staff", "user"],
-        default: "user"
-    },
-    isEmailVerified: {
-            type: Boolean,
-            default: false
+        username: {
+            type: String,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            index: true
         },
-    refreshToken: {
+        fullname: {
+            type: String,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: [true, "Password is required!"]
+        },
+        role: {
+            type: String,
+            enum: ["admin", "staff", "customer"],
+            default: "customer"
+        },
+        isEmailVerified: {
+                type: Boolean,
+                default: false
+            },
+        refreshToken: {
             type: String
         },
         forgotPasswordToken: {
