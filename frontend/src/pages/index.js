@@ -4,6 +4,11 @@ import SweetsPage from "./SweetsPage";
 import Navbar from "./Navbar";
 import Login from "./Login";
 import AdminDashboard from "./users/AdminDashboard";
+import Register from "./Register";
+import VerifyEmail from "./VerifyEmail";
+import AdminUsersPage from "./AdminUsersPage";
+import ForgotPassword from "./password/ForgotPassword";
+import ResetPassword from "./password/ResetPassword";
 
 export {
     Dashboard,
@@ -12,4 +17,9 @@ export {
     Navbar,
     Login,
     AdminDashboard,
+    Register,
+    VerifyEmail,
+    AdminUsersPage,
+    ForgotPassword,
+    ResetPassword
 }

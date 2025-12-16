@@ -1,15 +1,18 @@
-import React from 'react';
+import React from "react";
 
 import { AuthProvider } from "./context/AuthContext";
 import { UIProvider } from "./context/UIContext";
-import RootRouter from './components/RootRouter';
+import RootRouter from "./components/RootRouter";
+import { BrowserRouter } from "react-router-dom";
 
 export default function App() {
   return (
-    <AuthProvider>
-      <UIProvider>
-        <RootRouter />
-      </UIProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <UIProvider>
+          <RootRouter />
+        </UIProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

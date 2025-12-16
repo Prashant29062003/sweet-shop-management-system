@@ -1,21 +1,21 @@
-import {React, useState, useEffect} from 'react'
-import {Card, Alert, Badge} from '../components';
-import { api } from '../api/client';
+import { React, useState, useEffect } from "react";
+import { Card, Alert, Badge } from "../components";
+import { api } from "../api/client";
 
 const InventoryPage = () => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/inventory');
+      const response = await api.get("/inventory");
       const inventoryList = response || [];
 
-      if(Array.isArray(inventoryList)){
+      if (Array.isArray(inventoryList)) {
         setInventory(inventoryList);
-      }else{
+      } else {
         setInventory([]);
         setError("Received invalid data structure from server.");
       }
@@ -41,15 +41,51 @@ const InventoryPage = () => {
     );
   }
 
+  const totalItems = inventory.length;
+
+  const lowStockCount = inventory.filter(
+    (item) => item.quantityInStock < 10
+  ).length;
+
+  const totalStockValue = inventory.reduce(
+    (acc, item) => acc + item.price * item.quantityInStock,
+    0
+  );
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Inventory Overview</h2>
-        <p className="text-gray-600 text-sm mt-1">Monitor stock levels across all products</p>
+        <p className="text-gray-600 text-sm mt-1">
+          Monitor stock levels across all products
+        </p>
       </div>
 
       {error && <Alert variant="error">{error}</Alert>}
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-4 border-l-4 border-amber-500">
+          <p className="text-sm text-gray-500 uppercase font-bold">
+            Total Products
+          </p>
+          <p className="text-2xl font-bold">{totalItems}</p>
+        </Card>
+        <Card className="p-4 border-l-4 border-red-500">
+          <p className="text-sm text-gray-500 uppercase font-bold">
+            Low Stock Alerts
+          </p>
+          <p className="text-2xl font-bold text-red-600">{lowStockCount}</p>
+        </Card>
+        <Card className="p-4 border-l-4 border-green-500">
+          <p className="text-sm text-gray-500 uppercase font-bold">
+            Inventory Value
+          </p>
+          <p className="text-2xl font-bold text-green-600">
+            ₹{totalStockValue.toLocaleString()}
+          </p>
+        </Card>
+      </div>
+      
       <Card>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -75,17 +111,21 @@ const InventoryPage = () => {
                 return (
                   <tr key={item._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {item.name}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">₹{item.price}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">{item.quantityInStock}</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {item.quantityInStock}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge variant={isLowStock ? 'danger' : 'success'}>
-                        {isLowStock ? 'Low Stock' : 'In Stock'}
+                      <Badge variant={isLowStock ? "danger" : "success"}>
+                        {isLowStock ? "Low Stock" : "In Stock"}
                       </Badge>
                     </td>
                   </tr>
@@ -106,4 +146,4 @@ const InventoryPage = () => {
   );
 };
 
-export default InventoryPage
+export default InventoryPage;
