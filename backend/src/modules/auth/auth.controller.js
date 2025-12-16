@@ -4,7 +4,6 @@ import { ApiError } from "../../utils/api-error.js";
 import { emailVerificationMailgenContent, forgotPasswordMailgenContent, sendEmail } from "../../utils/mail.js";
 import jwt from "jsonwebtoken";
 import * as crypto from "node:crypto";
-import bcrypt from "bcrypt";
 import { User } from "../../models/user.model.js";
 import { ROLE_PERMISSIONS } from "../../utils/constants/roles.js";
 
@@ -65,7 +64,6 @@ const registerUser = asyncHandler(async (req, res) => {
     ),
   });
 
-  //   if we don't want just use this using '-' and furhter any property or method
   const safeUser = await User.findById(user._id).select(
     "-password -refreshToken -emailVerificationToken -emailVerificationExpiry",
   );

@@ -35,7 +35,6 @@ app.use("/api/v1/sweets", sweetRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
 
 
-
 app.get("/", (req, res) => {
     res.send("Welcome to Sweet-Shop-Management-System.");
 })

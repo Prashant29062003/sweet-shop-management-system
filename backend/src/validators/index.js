@@ -21,13 +21,16 @@ const userRegisterValidator = () => {
             ,
         body("password")
             .trim()
-            .isEmpty()
+            .notEmpty()
             .withMessage("Password is required!")
+            .isLength({min: 6})
+            .withMessage("Password must be at least 6 characters long")
             ,
         body("fullname")
             .optional()
             .trim()
-            .isEmpty()
+            .notEmpty()
+            .withMessage("Fullname cannot be empty if provided")
     ]
 }
 
@@ -60,7 +63,7 @@ const userForgotPasswordValidator = () => {
 
 const userResetForgotPasswordVaidator = () => {
     return [
-        body("newPassword").isEmpty().withMessage("Password is required.")
+        body("newPassword").notEmpty().withMessage("Password is required.")
     ]
 }
 export {

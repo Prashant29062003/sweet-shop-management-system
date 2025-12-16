@@ -21,7 +21,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     if (process.env.NODE_ENV === "test") {
         req.user = {
             _id: "test-user-id",
-            role: "admin" // simulate admin access
+            role: "admin"
         };
         return next();
     }
