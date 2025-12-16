@@ -31,8 +31,8 @@ const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
         updatedByEmail: user ? user.email : 'N/A'
     };
     try {
-            // Pass the enhanced payload to the API handler (onSubmit)
-            await onSubmit(sweet._id, payload); 
+        // Pass the enhanced payload to the API handler (onSubmit)
+        await onSubmit(sweet._id, payload); 
         } catch (err) {
             setError(err.message);
         } finally {

@@ -8,6 +8,7 @@ import NavLink from "./NavLink";
 
 import SweetForm from "./forms/SweetForm";
 import InventoryForm from "./forms/InventoryForm";
+import SweetDetailModal from "./SweetDetailModal";
 
 export {
     Alert,
@@ -18,5 +19,6 @@ export {
     SweetForm,
     InventoryForm,
     Input,
-    NavLink
+    NavLink,
+    SweetDetailModal
 };

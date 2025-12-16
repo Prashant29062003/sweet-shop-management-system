@@ -36,12 +36,12 @@ const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
 
       <div className="flex gap-2">
         {canUpdateSweet && (
-          <Button variant="secondary" onClick={() => onEdit(sweet)} className="flex-1 text-sm">
+          <Button variant="secondary" onClick={(e) => onEdit(e)} className="flex-1 text-sm">
             Edit Details
           </Button>
         )}
         {canUpdateInventory && (
-          <Button variant="primary" onClick={() => onUpdateInventory(sweet)} className="flex-1 text-sm">
+          <Button variant="primary" onClick={(e) => onUpdateInventory(e)} className="flex-1 text-sm">
             Update Stock
           </Button>
         )}

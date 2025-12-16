@@ -9,8 +9,8 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = async () => {
     try {
-      const me = await api.get("/auth/me");
-      setUser(me);
+      const response = await api.get("/auth/me");
+      setUser(response);
     } catch {
       setUser(null);
     } finally {
@@ -23,13 +23,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    await api.post("/auth/login", { email, password });
-    await fetchCurrentUser();
+    try {
+      await api.post("/auth/login", { email, password });
+      await fetchCurrentUser();
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = async () => {
-    await api.post("/auth/logout");
-    setUser(null);
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout API failed", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
