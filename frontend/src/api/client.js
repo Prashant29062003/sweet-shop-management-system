@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
 class ApiClient {
   async request(endpoint, options = {}) {
@@ -14,7 +15,7 @@ class ApiClient {
       throw new Error(json.message || "Request failed");
     }
 
-    return json.data; // 🔑 normalize here
+    return json.data;
   }
 
   get(url) {

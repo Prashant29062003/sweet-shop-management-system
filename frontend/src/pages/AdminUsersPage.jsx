@@ -24,9 +24,7 @@ const AdminUsersPage = () => {
       setListError("");
 
       const response = await api.get("/admin/users");
-
       const userList = response || [];
-      console.log(response);
 
       if (Array.isArray(userList)) {
         setUsers(userList);
@@ -58,27 +56,53 @@ const AdminUsersPage = () => {
       }
 
       await api.post("/admin/create-user", form);
-      setSuccess("New user created successfully!");
+
+      setSuccess(`Account for ${form.username} created successfully.`);
+
       setForm({ email: "", username: "", password: "", role: "staff" });
 
       await fetchusers();
     } catch (err) {
       setError(
-        err.response?.data?.message || err.message || "Failed to create user."
+        err?.response?.message || err.message || "Failed to create user."
       );
     } finally {
       setLoading(false);
+      setTimeout(() => setSuccess(""), 3000);
     }
   };
 
+  const handleDelete = async (userId) => {
+    if (!window.confirm("Permanently delete this user")) return;
+    try {
+      await api.request(`/admin/users/${userId}`, { method: "DELETE" });
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
+      setSuccess("User deleted successfully.");
+      fetchusers();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setListError("Delete failed" + err.message);
+    }
+  };
+
+  const handleToggleRole = async (user) => {
+    const newRole = user.targetRole;
+    try {
+      await api.patch(`/admin/users/${user._id}/role`, { role: newRole });
+      setSuccess(`Role updated to ${newRole} for ${user.username}`);
+      fetchusers();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setListError("Role update failed" + err.message);
+    }
+  };
   return (
-    <div className="max-w-xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-
-      <div className="max-w-xl mx-auto">
-        <Card className="p-6">
+    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Left Column: Create Form */}
+      <div className="lg:col-span-1 space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
+        <Card className="p-6 sticky top-24">
           <h3 className="text-xl font-semibold mb-4">Create New Account</h3>
-
           {error && (
             <Alert variant="error" className="mb-4">
               {error}
@@ -93,7 +117,6 @@ const AdminUsersPage = () => {
           <form onSubmit={handleCreate} className="space-y-4">
             <Input
               label="Email"
-              placeholder="user@example.com"
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -101,7 +124,6 @@ const AdminUsersPage = () => {
             />
             <Input
               label="Username"
-              placeholder="unique_user_id"
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
               disabled={loading}
@@ -109,28 +131,25 @@ const AdminUsersPage = () => {
             <Input
               label="Password"
               type="password"
-              placeholder="••••••••"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               disabled={loading}
             />
-
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-700 mb-1">
                 Role
               </label>
               <select
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
                 disabled={loading}
               >
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
-                <option value="user">Customer/User</option>
+                <option value="customer">Customer</option>
               </select>
             </div>
-
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? "Creating..." : "Create Account"}
             </Button>
@@ -138,71 +157,85 @@ const AdminUsersPage = () => {
         </Card>
       </div>
 
-      {/* All users Table */}
-      <div>
-        <h3 className="text-2xl font-semibold mb-4 text-gray-900">
+      {/* Right Column: User List Table */}
+      <div className="lg:col-span-2">
+        <h3 className="text-2xl font-semibold mb-6 text-gray-900">
           All Users ({users.length})
         </h3>
 
-        {listError && <Alert variant="error">{listError}</Alert>}
+        {listError && (
+          <Alert variant="error" className="mb-4">
+            {listError}
+          </Alert>
+        )}
 
         {listLoading ? (
-          <div className="text-center py-8 text-gray-600">
-            Loading user list...
+          <div className="text-center py-20 bg-white rounded-xl border animate-pulse">
+            Loading user database...
           </div>
         ) : (
-          <Card>
+          <Card className="overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Username
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">
+                      User Info
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">
                       Role
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">
+                      Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {users.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {user.username}
+                    <tr
+                      key={user._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">
+                          {user.username}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {user.email}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <Badge
-                          variant={
+                      <td className="px-6 py-4">
+                        <select
+                          className={`text-xs font-semibold px-2 py-1 rounded-md border focus:ring-1 focus:ring-amber-500 bg-white${
                             user.role === "admin"
-                              ? "danger"
+                              ? "text-red-600 border-red-200"
                               : user.role === "staff"
-                              ? "primary"
-                              : "secondary"
+                              ? "text-blue-600 border-blue-200"
+                              : "text-gray-600 border-gray-200"
+                          }`}
+                          value={user.role}
+                          onChange={(e) =>
+                            handleToggleRole({
+                              ...user,
+                              targetRole: e.target.value,
+                            })
                           }
                         >
-                          {user.role.charAt(0).toUpperCase() +
-                            user.role.slice(1)}
-                        </Badge>
+                          <option value="customer">Customer</option>
+                          <option value="staff">Staff</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleDelete(user._id)}
+                          className="text-xs font-semibold text-red-500 hover:text-red-700"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
-
-                  {users.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan="3"
-                        className="text-center py-8 text-gray-500"
-                      >
-                        No other users found.
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>

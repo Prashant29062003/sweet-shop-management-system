@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, Button } from "../../components";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [liveStats, setLiveStats] = useState({ totalUsers: 0, lowStockItems: 0, totalSweets: 0 });
+  const [liveStats, setLiveStats] = useState({
+    totalUsers: 0,
+    lowStockItems: 0,
+    totalSweets: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const response = await api.get("/admin/dashboard-stats");
-        // Adjust based on your ApiResponse structure
         setLiveStats(response || response.data);
       } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);
@@ -24,11 +27,11 @@ const AdminDashboard = () => {
   }, []);
 
   const stats = [
-    { 
-      label: "Total Users", 
-      value: liveStats?.totalUsers || "0", 
-      icon: "👥", 
-      path: "/dashboard/users" 
+    {
+      label: "Total Users",
+      value: liveStats?.totalUsers || "0",
+      icon: "👥",
+      path: "/dashboard/users",
     },
     {
       label: "Low Stock Items",
@@ -44,7 +47,7 @@ const AdminDashboard = () => {
     },
   ];
 
-  if (loading) return <div>Loding Dashboard...</div>
+  if (loading) return <div>Loding Dashboard...</div>;
   return (
     <div className="space-y-6">
       <div>
