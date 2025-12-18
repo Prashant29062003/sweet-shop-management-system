@@ -2,23 +2,49 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { NavLink, Button, Badge } from "../components";
 import { PERMISSIONS } from "../constants/permissions";
+import { useCart } from "../context";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const permissions = user?.permissions || [];
 
+  const { cartItems } = useCart();
+
   const NavItems = () => (
     <>
+      {/* Admin/Staff Only */}
       {permissions.includes(PERMISSIONS.VIEW_INVENTORY) && (
         <NavLink to="/dashboard/inventory">Inventory</NavLink>
       )}
 
+      {/* Admin Only */}
       {permissions.includes(PERMISSIONS.MANAGE_USERS) && (
-        <NavLink to="/dashboard/admin">Dashboard Home</NavLink>
+        <>
+          <NavLink to="/dashboard/admin">Admin Home</NavLink>
+          <NavLink to="/dashboard/all-payments">Global Payments</NavLink>
+          <NavLink to="/dashboard/users">Users List</NavLink>
+        </>
       )}
 
+      {/* Everyone */}
       <NavLink to="/dashboard/sweets">Sweets</NavLink>
+
+      {!permissions.includes(PERMISSIONS.MANAGE_USERS) && (
+        <>
+          <div className="relative inline-flex">
+            <NavLink to="/dashboard/basket" className="p-2">
+              Cart 🛒
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] rounded-full px-1.5 py-0.5">
+                  {cartItems.reduce((a, b) => a + b.quantity, 0)}
+                </span>
+              )}
+            </NavLink>
+          </div>
+          <NavLink to="/dashboard/my-payments">My Orders</NavLink>
+        </>
+      )}
     </>
   );
 
@@ -95,4 +121,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar
+export default Navbar;

@@ -9,6 +9,9 @@ import VerifyEmail from "./VerifyEmail";
 import AdminUsersPage from "./AdminUsersPage";
 import ForgotPassword from "./password/ForgotPassword";
 import ResetPassword from "./password/ResetPassword";
+import AdminPaymentPage from "./AdminPaymentPage";
+import PaymentInventory from "./PaymentInventory";
+import BasketPage from "./BasketPage";
 
 export {
     Dashboard,
@@ -21,5 +24,8 @@ export {
     VerifyEmail,
     AdminUsersPage,
     ForgotPassword,
-    ResetPassword
+    ResetPassword,
+    AdminPaymentPage,
+    PaymentInventory,
+    BasketPage
 }
