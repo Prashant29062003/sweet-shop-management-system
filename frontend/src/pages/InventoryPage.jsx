@@ -64,18 +64,21 @@ const InventoryPage = () => {
       {error && <Alert variant="error">{error}</Alert>}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
         <Card className="p-4 border-l-4 border-amber-500">
           <p className="text-sm text-gray-500 uppercase font-bold">
             Total Products
           </p>
           <p className="text-2xl font-bold">{totalItems}</p>
         </Card>
+
         <Card className="p-4 border-l-4 border-red-500">
           <p className="text-sm text-gray-500 uppercase font-bold">
             Low Stock Alerts
           </p>
           <p className="text-2xl font-bold text-red-600">{lowStockCount}</p>
         </Card>
+
         <Card className="p-4 border-l-4 border-green-500">
           <p className="text-sm text-gray-500 uppercase font-bold">
             Inventory Value
@@ -84,8 +87,20 @@ const InventoryPage = () => {
             ₹{totalStockValue.toLocaleString()}
           </p>
         </Card>
+        
+        <Card className="p-4 border-l-4 border-blue-500">
+          <p className="text-sm text-gray-500 uppercase font-bold">
+            Potential Sales Value
+          </p>
+          <p className="text-2xl font-bold text-blue-600">
+            ₹{totalStockValue.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Based on current stock and prices
+          </p>
+        </Card>
       </div>
-      
+
       <Card>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">

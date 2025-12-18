@@ -59,6 +59,7 @@ const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
         <Input
           label="New Quantity"
           type="number"
+          min="0"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           disabled={loading}

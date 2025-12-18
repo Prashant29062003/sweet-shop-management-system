@@ -14,6 +14,9 @@ import {
   InventoryPage,
   AdminDashboard,
   AdminUsersPage,
+  AdminPaymentPage,
+  PaymentInventory,
+  BasketPage
 } from "../pages";
 
 const RootRouter = () => {
@@ -54,22 +57,55 @@ const RootRouter = () => {
         element={user ? <Dashboard /> : <Navigate to="/login" />}
       >
         <Route index element={<Navigate to="sweets" replace />} />
-        
+
+        <Route path="basket" element={<BasketPage />} />
+
+        <Route path="my-payments" element={<PaymentInventory />} />
+
+        <Route
+          path="all-payments"
+          element={
+            permissions.includes(PERMISSIONS.MANAGE_USERS) ? (
+              <AdminPaymentPage />
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
+        />
+
         <Route path="sweets" element={<SweetsPage />} />
 
-       <Route 
-            path="admin" 
-            element={permissions.includes(PERMISSIONS.MANAGE_USERS) ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
-        />
-        
-        <Route 
-            path="inventory" 
-            element={permissions.includes(PERMISSIONS.VIEW_INVENTORY) ? <InventoryPage /> : <Navigate to="/dashboard" />} 
+        <Route
+          path="admin"
+          element={
+            permissions.includes(PERMISSIONS.MANAGE_USERS) ? (
+              <AdminDashboard />
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
         />
 
-        <Route 
-            path="users" 
-            element={permissions.includes(PERMISSIONS.MANAGE_USERS) ? <AdminUsersPage /> : <Navigate to="/dashboard" />} 
+        <Route
+          path="inventory"
+          element={
+            permissions.includes(PERMISSIONS.VIEW_INVENTORY) ? (
+              <InventoryPage />
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
+        />
+
+        <Route
+          path="users"
+          element={
+            permissions.includes(PERMISSIONS.MANAGE_USERS) ? (
+              <AdminUsersPage />
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
         />
       </Route>
 
