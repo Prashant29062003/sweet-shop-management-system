@@ -10,6 +10,8 @@ import {
   updateUserRole,
 } from "./admin.controller.js";
 
+import { getAllSweets } from "../sweets/sweet.controller.js";
+
 const router = Router();
 
 router.post(
@@ -24,6 +26,13 @@ router.get(
   verifyJWT,
   checkPermission(PERMISSIONS.MANAGE_USERS),
   getAllUsers
+);
+
+router.get(
+  "/sweets",
+  verifyJWT,
+  checkPermission(PERMISSIONS.UPDATE_INVENTORY), // Or appropriate permission
+  getAllSweets
 );
 
 router.get(

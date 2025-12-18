@@ -18,7 +18,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
   user.refreshToken = refreshToken;
   await user.save({ validateBeforeSave: false });
-    return { accessToken, refreshToken };
+
+  return { accessToken, refreshToken };
   } catch (error) {
     console.error("JWT GENERATION ERROR:", error);
     throw new ApiError(
@@ -115,7 +116,7 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry",
+    "-password -emailVerificationToken -emailVerificationExpiry",
   );
 
   if (!loggedInUser) {
@@ -172,9 +173,13 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).select(
-      "-password -refreshToken"
-    );
+    const user = await User.findById(req.user._id)
+      .select("-password -refreshToken")
+      .populate({
+        path: "payments",
+        populate: {path: "items.sweet", select: "name price" }
+      });
+      
     if(!user){
         throw new ApiError(404, "User not found");
     }

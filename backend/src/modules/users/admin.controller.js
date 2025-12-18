@@ -39,9 +39,15 @@ export const createUserWithRole = asyncHandler(async (req, res) => {
 });
 
 export const getAllUsers = asyncHandler(async (_req, res) => {
-  const users = await User.find().select(
-    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
-  );
+  const users = await User.find()
+  .select("-password -refreshToken -emailVerificationToken -emailVerificationExpiry")
+  .populate({
+    path: "payments",
+    populate:{
+      path: "items.sweet",
+      select: "name price",
+    }
+  });
 
   return res
     .status(200)

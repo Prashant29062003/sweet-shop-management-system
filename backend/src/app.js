@@ -23,17 +23,20 @@ import sweetRoutes from "./modules/sweets/sweet.routes.js";
 import inventoryRoutes from "./modules/inventory/inventory.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import adminRouter from "./modules/users/admin.routes.js";
+import paymentRouter from "./modules/payments/payment.routes.js";
 
 
 // middlewares
 app.use(express.json());
 app.use(cookieParser());
+
+// routes usage
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/sweets", sweetRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
-
+app.use("/api/v1/payments", paymentRouter);
 
 app.get("/", (req, res) => {
     res.send("Welcome to Sweet-Shop-Management-System.");
