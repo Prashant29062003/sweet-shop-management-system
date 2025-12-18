@@ -1,7 +1,6 @@
 import React from "react";
 
-import { AuthProvider } from "./context/AuthContext";
-import { UIProvider } from "./context/UIContext";
+import { AuthProvider, UIProvider, CartProvider } from "./context/";
 import RootRouter from "./components/RootRouter";
 import { BrowserRouter } from "react-router-dom";
 
@@ -10,7 +9,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <UIProvider>
-          <RootRouter />
+          <CartProvider>
+            <RootRouter />
+          </CartProvider>
         </UIProvider>
       </AuthProvider>
     </BrowserRouter>
