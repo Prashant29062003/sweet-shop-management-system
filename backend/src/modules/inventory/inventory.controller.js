@@ -4,7 +4,7 @@
 
   export const getInventory = asyncHandler(async (_req, res) => {
     const inventory = await Sweet.find().select(
-      "name quantityInStock price lastUpdatedByPermission"
+      "name quantityInStock price lastUpdatedByPermission description"
     );
 
     return res.json(
