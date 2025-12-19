@@ -63,12 +63,14 @@ const AdminDashboard = () => {
         const [statsRes, usersRes, sweetsRes] = await Promise.all([
           api.get("/admin/dashboard-stats"),
           api.get("/admin/users"),
-          api.get("/admin/sweets"),
+          api.get("/admin/sweets?all=true"),
         ]);
 
         setLiveStats(statsRes?.data || statsRes);
         setUsers(usersRes?.data || usersRes);
-        setSweets(sweetsRes?.data || sweetsRes);
+        // setSweets(sweetsRes?.data || sweetsRes);
+        const sweetData = sweetsRes?.data?.sweets || sweetsRes?.sweets || [];
+      setSweets(sweetData);
       } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);
       } finally {
