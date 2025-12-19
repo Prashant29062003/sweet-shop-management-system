@@ -208,41 +208,64 @@ The application features a secure, branded entry point with distinct demo creden
 
 | **Login Interface** | **Account Registration** |
 | :---: | :---: |
-| ![Login](assets/image.png) | ![Register](assets/image-1.png) |
+| ![Login](assets/login-page.png) | ![Register](assets/register-page.png) |
 | **Login Page**: Includes system demo credentials and secure JWT-based session handling. | **Registration**: Implements automatic role assignment and email format validation. |
 
 ---
 
-### 🏠 Main Navigation
-The landing area adapts its navigation links based on the authenticated user's role.
+### 📊 Administrative Command Center
+Administrators have access to high-level metrics, user permission controls, and global financial tracking.
 
-**Home Page** A clean entry point providing quick access to the inventory, dashboard, and product catalog.  
-![Home Page](assets/image-2.png)
+| **Admin Control Panel** | **User Role Management** |
+| :---: | :---: |
+| ![Dashboard](assets/admin-dashboard.png) | ![Users](assets/admin-user-management.png) |
 
----
-
-### 📊 Administrative Suite
-Designed for administrators to monitor the entire shop ecosystem and manage user access levels.
-
-**Admin Control Panel** Displays high-level metrics including total user count, real-time stock alerts, and quick action shortcuts.  
-![Admin Dashboard](assets/image-4.png)
-
-**User Management Portal** Allows administrators to create staff accounts, update user roles (Admin/Staff/Customer), or securely delete users.  
-![User Management](assets/image-5.png)
+**Global Transaction Ledger**
+*A chronological record of all shop activity across all users and roles.*
+![Payments](assets/admin-global-payment-record.png)
 
 ---
 
 ### 🍬 Inventory & Business Intelligence
-Tools for managing physical products and tracking the financial health of the shop.
+Advanced tools for tracking physical stock levels and the total monetary valuation of the shop's assets.
 
-**Inventory Financial Overview** A business intelligence tool that calculates the total monetary value of all stock on hand and highlights low-stock items.  
-![Inventory Stats](assets/image-6.png)
+**Comprehensive Inventory Overview**
+*Includes real-time stock status, potential sales value calculations, and low-stock alerts.*
+| **Sweets Management (Admin)** | **Sweets Management (Staff)** |
+| :---: | :---: |
+| ![Inventory Overview](assets/admin-inventory-table.png) | ![Inventory-editable Overview](assets/admin-inventory-edit-table.png) |
 
-**Sweets Management Section** A user-friendly grid view where staff can edit product details or perform instant stock updates for individual items.  
-![Sweets Management](assets/image-3.png)
 
+**Management Grid & Edit Modes**
+| **Sweets Management (Admin)** | **Sweets Management (Staff)** |
+| :---: | :---: |
+| ![Admin Sweets](assets/admin-sweet-page.png) | ![Staff Sweets](assets/staff-sweets-dashboard.png) |
 
 ---
+
+### 🛒 Staff & Customer Experience
+A seamless shopping experience featuring persistent baskets and detailed personal purchase histories.
+
+| **Shopping Basket** | **Personal Purchase History** |
+| :---: | :---: |
+| ![Basket](assets/staff-basket.png) | ![History](assets/staff-purchase-history.png) |
+
+---
+
+### 📄 Automated PDF Reporting System
+The application includes a professional reporting engine that generates audit-ready PDF documents. This feature is designed with business intelligence in mind, allowing administrators to export physical records of shop status.
+
+* **Dynamic Data Integration**: Automatically pulls current stock levels, unit prices, and total inventory valuation.
+* **Customer Analytics**: Generates a breakdown of customer purchase histories and their total financial contribution.
+* **Print-Optimized Layout**: Engineered with specific CSS media queries to ensure consistent 20mm margins and clean page-breaking between data tables.
+
+<p align="center">
+  <img src="assets/inventory-report.png" width="48%" alt="Inventory Report Page 1" />
+  <img src="assets/customer-report.png" width="48%" alt="Customer Breakdown Page 2" />
+</p>
+<p align="center">
+  <em>Example of a generated Audit Report showing the "Product Inventory Status" and "Customer Purchase Breakdown" sections.</em>
+</p>
 
 ## 🤝 Contributing
 
