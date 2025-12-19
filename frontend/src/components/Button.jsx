@@ -12,7 +12,7 @@ const Button = ({ children, variant = 'primary', disabled, onClick, className = 
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${className} cursor-pointer`}
       disabled={disabled}
       onClick={onClick}
       {...props}

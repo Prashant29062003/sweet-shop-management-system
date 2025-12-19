@@ -21,21 +21,42 @@ import {
 
 const SweetsPage = () => {
   const [sweets, setSweets] = useState([]);
+
   const [loading, setLoading] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState("");
+
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingSweet, setEditingSweet] = useState(null);
   const [updatingInventory, setUpdatingInventory] = useState(null);
-  const [searchItem, setSearchItem] = useState("");
   const [previewSweet, setPreviewSweet] = useState(null);
 
+  const [searchItem, setSearchItem] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(9);
+
   const canCreateSweet = usePermission(PERMISSIONS.CREATE_SWEET);
+
+  // Debounce logic
+  useEffect(() => {
+    if(searchItem) setIsTyping(true);
+
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchItem);
+      setIsTyping(false);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchItem]);
 
   const fetchSweets = async () => {
     try {
       setLoading(true);
-      const response = await getSweets();
-      setSweets(response || []);
+      const response = await getSweets(currentPage, limit, debouncedSearch);
+      setSweets(response.sweets || []);
+      setTotalPages(response.pagination.totalPages || 1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,7 +66,12 @@ const SweetsPage = () => {
 
   useEffect(() => {
     fetchSweets();
-  }, []);
+  }, [currentPage, debouncedSearch]);
+
+  // Reset to page 1 if user tyepes anew search
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   const handleCreateSweet = async (data) => {
     const res = await createSweet(data);
@@ -68,12 +94,6 @@ const SweetsPage = () => {
     setUpdatingInventory(null);
     fetchSweets();
   };
-
-  const filteredSweets = sweets.filter(
-    (sweet) =>
-      sweet.name.toLowerCase().includes(searchItem.toLowerCase()) ||
-      sweet.description.toLowerCase().includes(searchItem.toLowerCase())
-  );
 
   if (loading && sweets.length === 0) {
     return (
@@ -110,6 +130,12 @@ const SweetsPage = () => {
           value={searchItem}
           onChange={(e) => setSearchItem(e.target.value)}
         />
+
+        {(isTyping || loading) && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+            <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
       </div>
 
       {error && <Alert variant="error">{error}</Alert>}
@@ -141,7 +167,7 @@ const SweetsPage = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSweets.map((sweet) => (
+        {sweets.map((sweet) => (
           <div
             key={sweet._id}
             onClick={() => setPreviewSweet(sweet)}
@@ -160,7 +186,48 @@ const SweetsPage = () => {
             />
           </div>
         ))}
+        
       </div>
+        <div className="flex flex-col items-center space-y-4 mt-10 pb-10">
+          <div className="flex items-center justify-center gap-4">
+            <Button
+              variant="secondary"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={`w-10 h-10 rounded-full border ${
+                    currentPage === index + 1
+                      ? "bg-amber-500 text-white border-amber-500"
+                      : "bg-white text-gray-600 hover:bg-amber-50"
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
+            <Button
+              variant="secondary"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+          <p className="text-sm text-gray-500">
+            Showing Page {currentPage} of {totalPages}
+          </p>
+        </div>
 
       {previewSweet && (
         <SweetDetailModal
@@ -169,7 +236,7 @@ const SweetsPage = () => {
         />
       )}
 
-      {filteredSweets.length === 0 && !loading && (
+      {sweets.length === 0 && !loading && (
         <Card className="p-12 text-center">
           <div className="text-6xl mb-4">🍬</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
