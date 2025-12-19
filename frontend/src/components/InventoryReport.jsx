@@ -1,7 +1,48 @@
-import React, {useMemo} from "react";
+import React, { useMemo } from "react";
 
 export const InventoryReport = React.forwardRef(
   ({ users, sweets, options }, ref) => {
+    const printStyles = `
+  @page {
+    size: A4;
+    margin: 15mm; /* Reduced slightly for more space */
+  }
+
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+    }
+    
+    /* Remove browser-added headers/footers (optional) */
+    @page { margin: 15mm; }
+
+    section {
+      page-break-inside: auto; /* Allow sections to break if long */
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      page-break-inside: auto;
+      width: 100%;
+      border-spacing: 0;
+      border-collapse: collapse;
+    }
+
+    tr {
+      page-break-inside: avoid; /* Keeps a single row together */
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    /* Prevent large gaps at the top of pages */
+    h2 {
+      padding-top: 0;
+      margin-top: 0;
+    }
+  }
+`;
     const stats = useMemo(() => {
       let totalRevenue = 0;
       let totalQty = 0;
@@ -14,12 +55,12 @@ export const InventoryReport = React.forwardRef(
           });
         });
       });
-      console.log(totalQty)
       return { totalQty, totalRevenue };
     }, [users]);
     return (
       <div ref={ref} className="p-10 bg-white text-black min-h-screen">
         {/* PDF Header */}
+        <style>{printStyles}</style>
         <div className="flex justify-between items-center border-b-2 border-gray-900 pb-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold uppercase tracking-tighter italic">
@@ -41,7 +82,7 @@ export const InventoryReport = React.forwardRef(
 
         {/* SECTION 1: SWEET INVENTORY */}
         {options.includeSweets && (
-          <section className="mb-12">
+          <section className="mb-12 print:break-after-page">
             <div className="bg-amber-50 p-2 mb-4 border-l-4 border-amber-600">
               <h2 className="text-sm font-bold uppercase text-amber-900">
                 Product Inventory Status
@@ -62,23 +103,34 @@ export const InventoryReport = React.forwardRef(
                 </tr>
               </thead>
               <tbody>
-                {sweets.map((s) => (
-                  <tr key={s._id} className="text-xs">
-                    <td className="border border-gray-300 p-2 font-medium">
-                      {s.name}
-                    </td>
+                {Array.isArray(sweets) && sweets.length > 0 ? (
+                  sweets.map((s) => (
+                    <tr key={s._id} className="text-xs">
+                      <td className="border border-gray-300 p-2 font-medium">
+                        {s.name}
+                      </td>
+                      <td
+                        className={`border border-gray-300 p-2 text-center ${
+                          s.quantityInStock < 10 ? "text-red-600 font-bold" : ""
+                        }`}
+                      >
+                        {s.quantityInStock} kg
+                      </td>
+                      <td className="border border-gray-300 p-2 text-right">
+                        ₹{s.price}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
                     <td
-                      className={`border border-gray-300 p-2 text-center ${
-                        s.quantityInStock < 10 ? "text-red-600 font-bold" : ""
-                      }`}
+                      colSpan="3"
+                      className="p-4 text-center text-gray-400 italic"
                     >
-                      {s.quantityInStock} kg
-                    </td>
-                    <td className="border border-gray-300 p-2 text-right">
-                      ₹{s.price}
+                      No items to display in report.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </section>
@@ -86,7 +138,7 @@ export const InventoryReport = React.forwardRef(
 
         {/* SECTION 2: USER PURCHASES (The Requested Breakdown) */}
         {options.includeUsers && (
-          <section>
+          <section className="print:break-before-page">
             <div className="bg-blue-50 p-2 mb-4 border-l-4 border-blue-600">
               <h2 className="text-sm font-bold uppercase text-blue-900">
                 Customer Purchase Breakdown
@@ -127,7 +179,7 @@ export const InventoryReport = React.forwardRef(
                           UID: {u._id.slice(-6)}
                         </div>
                       </td>
-                      <td className="border border-gray-300 p-2 align-top">
+                      <td className="border border-gray-300 p-1 align-top">
                         {u.payments && u.payments.length > 0 ? (
                           <div className="space-y-2">
                             {u.payments.map((payment, pIndex) => (
