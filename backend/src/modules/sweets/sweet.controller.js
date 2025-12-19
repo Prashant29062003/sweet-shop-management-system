@@ -185,7 +185,7 @@ export const getSweetById = async (req, res) => {
  * Any authenticated user
  */
 export const getAllSweets = asyncHandler(async (req, res) => {
-  const { search, minPrice, maxPrice, inStock } = req.query;
+  const { search, minPrice, maxPrice, inStock, all } = req.query;
 
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 9;
@@ -193,12 +193,12 @@ export const getAllSweets = asyncHandler(async (req, res) => {
 
   const filter = {};
 
-  // Name search (case-insensitive)
+  // Name and description search (case-insensitive)
   if (search) {
     filter.$or = [
      { name: { $regex: search, $options: "i" } },
      { description: { $regex: search, $options: "i" } }
-    ]
+    ];
   };
 
   // Price range
@@ -215,10 +215,13 @@ export const getAllSweets = asyncHandler(async (req, res) => {
 
   const totalSweets = await Sweet.countDocuments(filter);
 
-  const sweets = await Sweet.find(filter)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+  const query = Sweet.find(filter).sort({ createdAt: -1 });
+
+  if (all !== "true") {
+    query.skip(skip).limit(limit);
+  }
+
+  const sweets = await query;
 
   return res.json(
     new ApiResponse(
