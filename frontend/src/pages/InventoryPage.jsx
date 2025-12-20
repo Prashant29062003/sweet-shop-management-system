@@ -64,8 +64,8 @@ const InventoryPage = () => {
     try {
       setUpdateLoading(true);
 
-      let endpoint = `/sweets/${formData.id}${canUpdateSweet ? "" : '/inventory'}`;
       let payload = {};
+      let response;
 
       if (canUpdateSweet) {
         payload = {
@@ -74,14 +74,16 @@ const InventoryPage = () => {
           quantityInStock: Number(formData.quantityInStock),
           description: formData.description,
         };
+
+        response = await api.put(`/sweets/${formData.id}`, payload);
         
       } else {
         payload = {
           quantityInStock: Number(formData.quantityInStock),
         };
-      }
 
-      await api.patch(endpoint, payload);
+        response = await api.patch(`/sweets/${formData.id}/inventory`, payload);
+      }
 
       await fetchInventory();
       setIsModalOpen(false);
