@@ -64,7 +64,7 @@ const InventoryPage = () => {
     try {
       setUpdateLoading(true);
 
-      let endpoint = `/sweet/${formData.id}${canUpdateSweet ? "" : '/inventory'}`;
+      let endpoint = `/sweets/${formData.id}${canUpdateSweet ? "" : '/inventory'}`;
       let payload = {};
 
       if (canUpdateSweet) {
