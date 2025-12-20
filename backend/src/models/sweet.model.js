@@ -65,7 +65,6 @@ const sweetSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-sweetSchema.index({ name: 1 });
 sweetSchema.index({ price: 1 });
 
 export const Sweet = mongoose.model("Sweet", sweetSchema);
