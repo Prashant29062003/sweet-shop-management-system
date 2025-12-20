@@ -43,6 +43,8 @@ export const googleSignIn = asyncHandler(async (req, res) => {
     user._id
   );
 
+  const permissions = ROLE_PERMISSIONS[user.role] || [];
+
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -56,7 +58,16 @@ export const googleSignIn = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { user, accessToken, refreshToken },
+        { user:{
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          permissions,
+        }, 
+        accessToken, 
+        refreshToken 
+      },
         "User logged in successfully via Google."
       )
     );
