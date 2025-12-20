@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { refreshAccessToken, registerUser, logoutUser, forgotPasswordRequest, resetForgotPassword, changeCurrntPassword, getCurrentUser, resendEmailVerification, verifyEmail, loginUser } from "./auth.controller.js";
+import { refreshAccessToken, registerUser, logoutUser, forgotPasswordRequest, resetForgotPassword, changeCurrntPassword, getCurrentUser, verifyEmail, loginUser, googleSignIn } from "./auth.controller.js";
 import { validate } from "../../middlewares/validator.middleware.js";
 
 import { userChangeCurrentPasswordValidator, userForgotPasswordValidator, userLoginValidator, userRegisterValidator, userResetForgotPasswordVaidator } from "../../validators/index.js";
@@ -10,6 +10,7 @@ const router = Router();
 
 router.route("/register").post(userRegisterValidator(), validate, registerUser);
 router.route("/login").post(userLoginValidator(), validate, loginUser);
+router.route("/google").post(googleSignIn);
 
 router.route(`/verify-email/:verificationToken`).get(verifyEmail);
 router.route("/refresh-token").post(refreshAccessToken);
@@ -25,7 +26,6 @@ router
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/me").get(verifyJWT, getCurrentUser)
 router.route("/change-password").post(verifyJWT, userChangeCurrentPasswordValidator(), validate, changeCurrntPassword)
-router.route("/resend-email-verification").post(verifyJWT, resendEmailVerification)
 
 
 export default router;

@@ -91,7 +91,7 @@ const AdminDashboard = () => {
       label: "Low Stock Items",
       value: liveStats?.lowStockItems || "0",
       icon: "⚠️",
-      path: "/dashboard/sweets",
+      path: "/dashboard/inventory",
     },
     {
       label: "Total Sweets",

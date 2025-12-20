@@ -1,18 +1,41 @@
 import React, { useState } from "react";
 import { useAuth } from "../context";
-import { Link, useNavigate } from "react-router-dom"; 
+import { data, Link, useNavigate } from "react-router-dom";
 import { Card, Input, Alert, Button } from "../components";
+import { api } from "../api/client";
+
+// Google
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, setUser } = useAuth();
   const navigate = useNavigate();
 
+  const handleGoogleSuccess = async (CredentialResponse) => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await api.post("/auth/google", {
+        idToken: CredentialResponse.credential,
+      });
+
+      if (response) {
+        setUser(response);
+        navigate("/dashboard/sweets");
+      }
+    } catch (err) {
+      setError(err.response?.message || "Google Login Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
-    if (e) e.preventDefault(); 
+    if (e) e.preventDefault();
 
     if (!email || !password) {
       setError("Please enter both email and password");
@@ -54,7 +77,7 @@ const Login = () => {
             placeholder="admin@sweetshop.com"
             autoComplete="email"
             required
-            autoFocus 
+            autoFocus
           />
 
           <div className="space-y-1">
@@ -70,6 +93,7 @@ const Login = () => {
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
+                title="Forgot password link"
                 className="text-xs font-semibold text-amber-700 hover:text-amber-800 transition-colors"
               >
                 Forgot password?
@@ -81,7 +105,7 @@ const Login = () => {
             <div className="animate-in fade-in slide-in-from-top-1">
               <Alert variant="error">
                 {error}
-                
+
                 {error.includes("verify") && (
                   <button
                     type="button"
@@ -127,6 +151,30 @@ const Login = () => {
               "Login"
             )}
           </Button>
+
+          {/* 3. Divider and Google Button */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google Login Failed")}
+              theme="filled_blue"
+              shape="pill"
+              text="signin_with"
+              width="350"
+              use_fedcm_for_prompt={true}
+            />
+          </div>
 
           <p className="text-center text-sm text-gray-600 pt-2">
             Need a staff account?{" "}
