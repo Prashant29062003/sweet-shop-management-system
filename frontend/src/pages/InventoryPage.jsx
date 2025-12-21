@@ -186,7 +186,7 @@ const InventoryPage = () => {
             Inventory Value
           </p>
           <p className="text-2xl font-bold text-green-600">
-            ₹{totalStockValue.toLocaleString()}
+            ₹{totalStockValue.toLocaleString("en-IN")}
           </p>
         </Card>
 
@@ -195,7 +195,7 @@ const InventoryPage = () => {
             Potential Sales Value
           </p>
           <p className="text-2xl font-bold text-blue-600">
-            ₹{totalStockValue.toLocaleString()}
+            ₹{totalStockValue.toLocaleString("en-IN")}
           </p>
           <p className="text-xs text-gray-400 mt-1">
             Based on current stock and prices

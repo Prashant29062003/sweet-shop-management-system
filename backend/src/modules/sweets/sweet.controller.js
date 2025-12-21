@@ -26,7 +26,7 @@ export const createSweet = asyncHandler(async (req, res) => {
           price,
           lastUpdatedByPermission: req.usedPermission,
         },
-        $inc: { quantityInStock },
+        $inc: { quantityInStock: Number(quantityInStock) },
       },
       { new: true, upsert: true }
     );
@@ -47,10 +47,10 @@ export const createSweet = asyncHandler(async (req, res) => {
         metadata: { name: sweet.name },
       });
 
-      return res
-        .status(201)
-        .json(new ApiResponse(201, sweet, "Sweet created successfully"));
     }
+    return res
+      .status(201)
+      .json(new ApiResponse(201, sweet, "Sweet created successfully"));
   } catch (error) {
     if (error.code === 11000) {
       throw new ApiError(409, `Sweet "${name}" already exists`);

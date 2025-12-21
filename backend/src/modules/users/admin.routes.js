@@ -8,6 +8,7 @@ import {
   getDashboardStats,
   deleteUser,
   updateUserRole,
+  verifyStaff
 } from "./admin.controller.js";
 
 import { getAllSweets } from "../sweets/sweet.controller.js";
@@ -59,6 +60,13 @@ router.patch(
   checkPermission(PERMISSIONS.MANAGE_USERS),
   updateUserRole
 )
+
+router.patch(
+  "/users/:userId/verify",
+  verifyJWT,
+  checkPermission(PERMISSIONS.MANAGE_USERS),
+  verifyStaff
+);
 
 
 export default router;

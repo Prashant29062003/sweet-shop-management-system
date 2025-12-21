@@ -65,7 +65,7 @@ const Navbar = () => {
 
           {/* Right Side Info */}
           <div className="hidden md:flex items-center space-x-4">
-            <Badge variant="info">{user?.role?.toUpperCase()}</Badge>
+            <Badge variant="info">{user?.role.toUpperCase()}</Badge>
             <Button variant="danger" size="sm" onClick={logout}>
               Logout
             </Button>

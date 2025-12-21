@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import { Card, Input, Button, Alert, Badge } from "../components";
+import { approveStaff } from "../api/admin.api";
 
 const AdminUsersPage = () => {
   const [form, setForm] = useState({
@@ -43,6 +44,23 @@ const AdminUsersPage = () => {
   useEffect(() => {
     fetchusers();
   }, []);
+
+  const handleApprove = async (userId) => {
+    try {
+      await approveStaff(userId);
+
+      // Update local state immediately
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, isEmailVerified: true } : user
+        )
+      );
+
+      alert("Staff member approved successfully!");
+    } catch (err) {
+      alert(err.message || "Failed to approve user");
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -183,7 +201,7 @@ const AdminUsersPage = () => {
                       User Info
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">
-                      Role
+                      Role & Status
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">
                       Actions
@@ -205,28 +223,46 @@ const AdminUsersPage = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <select
-                          className={`text-xs font-semibold px-2 py-1 rounded-md border focus:ring-1 focus:ring-amber-500 bg-white${
-                            user.role === "admin"
-                              ? "text-red-600 border-red-200"
-                              : user.role === "staff"
-                              ? "text-blue-600 border-blue-200"
-                              : "text-gray-600 border-gray-200"
-                          }`}
-                          value={user.role}
-                          onChange={(e) =>
-                            handleToggleRole({
-                              ...user,
-                              targetRole: e.target.value,
-                            })
-                          }
-                        >
-                          <option value="customer">Customer</option>
-                          <option value="staff">Staff</option>
-                          <option value="admin">Admin</option>
-                        </select>
+                        <div>
+                          <select
+                            className={`text-xs font-semibold px-2 py-1 rounded-md border focus:ring-1 focus:ring-amber-500 bg-white${
+                              user.role === "admin" ? "text-red-600 border-red-200": 
+                              user.role === "staff" ? "text-blue-600 border-blue-200" : "text-gray-600 border-gray-200"
+                            }`}
+                            value={user.role}
+                            onChange={(e) =>
+                              handleToggleRole({
+                                ...user,
+                                targetRole: e.target.value,
+                              })
+                            }
+                          >
+                            <option value="customer">Customer</option>
+                            <option value="staff">Staff</option>
+                            <option value="admin">Admin</option>
+                          </select>
+
+                          {user.role === "staff" && (
+                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full w-fit ${
+                              user.isEmailVerified 
+                                ? "bg-green-100 text-green-700" 
+                                : "bg-amber-100 text-amber-700 animate-pulse"
+                            }`}>
+                              {user.isEmailVerified ? "Approved" : "Pending Approval"}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
+                        {/* unverified staff's state change */}
+                        {user.role === "staff" && !user.isEmailVerified && (
+                          <button
+                            onClick={() => handleApprove(user._id)}
+                            className="text-xs font-bold text-green-600 hover:text-green-800 bg-green-50 px-2 py-1 rounded border border-green-200"
+                          >
+                            Approve
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(user._id)}
                           className="text-xs font-semibold text-red-500 hover:text-red-700"

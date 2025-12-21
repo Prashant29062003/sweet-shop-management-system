@@ -58,16 +58,17 @@ export const googleSignIn = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { user:{
-          _id: user._id,
-          email: user.email,
-          username: user.username,
-          role: user.role,
-          permissions,
-        }, 
-        accessToken, 
-        refreshToken 
-      },
+        {
+          user: {
+            _id: user._id,
+            email: user.email,
+            username: user.username,
+            role: user.role,
+            permissions,
+          },
+          accessToken,
+          refreshToken,
+        },
         "User logged in successfully via Google."
       )
     );
@@ -96,7 +97,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { email, username, password, role } = req.body;
+
+  if (role === "admin") {
+    throw new ApiError(400, "Cannot register as an Admin directly.");
+  }
 
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
@@ -106,13 +111,39 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with email or username already exits.", []);
   }
 
+  const isStaff = role === "staff";
+
   const user = await User.create({
     email,
     password,
     username,
-    role: "customer",
-    isEmailVerified: false,
+    role: isStaff ? "staff" : "customer",
+    isEmailVerified: !isStaff,
   });
+
+  if (isStaff) {
+    await sendEmail({
+      email: process.env.ADMIN_EMAIL,
+      subject: "New Staff Approval Request",
+      mailgenContent: {
+        body: {
+          name: "Admin",
+          intro: `A new user (${username}) has requested Staff access for the email: ${email}.`,
+          action: {
+            instruction:
+              "To approve this staff member, please log in to the Admin Dashboard.",
+            button: {
+              color: "#22BC66",
+              text: "Go to Dashboard",
+              link: `${process.env.CLIENT_URL}/admin/approvals`,
+            },
+          },
+        },
+      },
+    });
+  } else {
+    console.log("Customer registered successfully. No verification needed.");
+  }
 
   const { unHashedToken, hashedToken, tokenExpiry } =
     user.generateTemporaryToken();
@@ -134,7 +165,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   const safeUser = await User.findById(user._id).select(
-    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry"
+    "-password -refreshToken"
   );
 
   if (!safeUser) {
@@ -303,7 +334,6 @@ const verifyEmail = asyncHandler(async (req, res) => {
     )
   );
 });
-
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =

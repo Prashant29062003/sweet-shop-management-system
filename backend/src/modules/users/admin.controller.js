@@ -108,3 +108,32 @@ export const updateUserRole = asyncHandler(async (req, res) => {
     new ApiResponse(200, user, "User role updated successfully")
   );
 });
+
+/**
+ * VERIFY/APPROVE STAFF
+ * Route: PATCH /api/v1/admin/users/:userId/verify
+ * Permission: MANAGE_USERS
+ */
+export const verifyStaff = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // If already verified, no need to do it again
+  if (user.isEmailVerified) {
+    return res.status(200).json(
+      new ApiResponse(200, user, "User is already verified/approved")
+    );
+  }
+
+  user.isEmailVerified = true;
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "Staff member approved and verified successfully")
+  );
+});
