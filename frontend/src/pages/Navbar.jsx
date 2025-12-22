@@ -7,9 +7,10 @@ import { useCart } from "../context";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const permissions = user?.permissions || [];
-
+  
   const userData = user?.user ? user.user : user;
+  
+  const permissions = userData.permissions || [];
 
   const { cartItems } = useCart();
 
