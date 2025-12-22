@@ -9,6 +9,8 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const permissions = user?.permissions || [];
 
+  const userData = user?.user ? user.user : user;
+
   const { cartItems } = useCart();
 
   const NavItems = () => (
@@ -62,12 +64,11 @@ const Navbar = () => {
               <NavItems />
             </div>
           </div>
-
           {/* Right Side Info */}
           <div className="hidden md:flex items-center space-x-4">
             <div className="flex flex-col gap-0.5">
-              <Badge>{user?.username}</Badge>
-              <Badge variant="info">{user?.role.toUpperCase()}</Badge>
+              <Badge>{userData.username}</Badge>
+              <Badge variant="info">{userData.role.toUpperCase()}</Badge>
             </div>
             <Button variant="danger" size="sm" onClick={logout}>
               Logout
@@ -113,7 +114,7 @@ const Navbar = () => {
           <NavItems />
           <hr />
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-gray-500">{user?.email}</span>
+            <span className="text-xs text-gray-500">{userData.email}</span>
             <Button variant="danger" size="sm" onClick={logout}>
               Logout
             </Button>
