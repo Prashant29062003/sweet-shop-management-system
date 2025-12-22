@@ -1,7 +1,9 @@
 # 🍬 Sweet Shop Management System
 
-A full-stack web application for managing a sweet shop’s inventory, users, and roles with secure authentication, role-based access control, and real-time stock monitoring.
+A full-stack web application for managing a sweet shop’s inventory, users, and roles.
 
+🔗 **Live Frontend:** [https://my-sweet-shop.netlify.app](https://my-sweet-shop.netlify.app)  
+⚙️ **Backend API:** [https://sweet-shop-management-system-production-dbc8.up.railway.app](https://sweet-shop-management-system-production-dbc8.up.railway.app)
 ---
 
 ## 📌 Overview
