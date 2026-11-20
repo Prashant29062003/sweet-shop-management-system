@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-import { Card, Button, Badge } from "../components";
+import { Card, Button, Badge, Alert, Input } from "../components";
+import { useAuth } from "../context/AuthContext";
+import {
+  getReviews,
+  getReviewSummary,
+  createReview,
+} from "../api/review.api";
 
 const SweetDetailModal = ({ sweet, onClose }) => {
   if (!sweet) return null;
@@ -13,10 +19,42 @@ const SweetDetailModal = ({ sweet, onClose }) => {
       : [`https://placehold.co/800x600?text=${encodeURIComponent(sweet.name)}`];
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const { user } = useAuth();
+  const [summary, setSummary] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [reviewSort, setReviewSort] = useState("newest");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
     setActiveIndex(0);
   }, [sweet?._id]);
+
+  useEffect(() => {
+    if (!sweet?._id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [s, r] = await Promise.all([
+          getReviewSummary(sweet._id),
+          getReviews(sweet._id, 1, 5, reviewSort),
+        ]);
+        if (cancelled) return;
+        setSummary(s);
+        setReviews(r?.reviews || []);
+      } catch (err) {
+        if (!cancelled) setReviewError(err.message || "Failed to load reviews");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [sweet?._id, reviewSort]);
 
   const goPrev = () =>
     setActiveIndex((i) => (i - 1 + images.length) % images.length);
@@ -135,9 +173,165 @@ const SweetDetailModal = ({ sweet, onClose }) => {
               </div>
             </div>
 
-            <Button onClick={onClose} className="w-full mt-6">
-              Close Preview
-            </Button>
+            {/* Rating summary */}
+            <div className="pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-500 text-lg">
+                  {"★".repeat(Math.round(summary?.averageRating || sweet.averageRating || 0))}
+                  {"☆".repeat(5 - Math.round(summary?.averageRating || sweet.averageRating || 0))}
+                </span>
+                <span className="text-sm text-gray-600">
+                  {(summary?.averageRating || sweet.averageRating || 0).toFixed(1)}{" "}
+                  ({summary?.count || sweet.reviewCount || 0} reviews)
+                </span>
+              </div>
+            </div>
+
+            {/* Reviews */}
+            <div className="pt-4 border-t space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900">Reviews</h3>
+                <select
+                  className="text-xs border rounded px-2 py-1"
+                  value={reviewSort}
+                  onChange={(e) => setReviewSort(e.target.value)}
+                >
+                  <option value="newest">Newest</option>
+                  <option value="rating_high">Highest</option>
+                  <option value="rating_low">Lowest</option>
+                </select>
+              </div>
+
+              {reviewError && <Alert variant="error">{reviewError}</Alert>}
+
+              {reviewLoading && (
+                <p className="text-sm text-gray-500">Loading reviews...</p>
+              )}
+
+              {!reviewLoading && reviews.length === 0 && (
+                <p className="text-sm text-gray-500">No reviews yet. Be the first!</p>
+              )}
+
+              <div className="max-h-48 overflow-y-auto space-y-3 pr-1">
+                {reviews.map((r) => (
+                  <div key={r._id} className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800">
+                        {r.user?.username || "Anonymous"}
+                      </span>
+                      <span className="text-xs text-amber-500">
+                        {"★".repeat(r.rating)}
+                        {"☆".repeat(5 - r.rating)}
+                      </span>
+                    </div>
+                    {r.title && (
+                      <p className="text-sm font-semibold text-gray-900 mt-1">
+                        {r.title}
+                      </p>
+                    )}
+                    {r.comment && (
+                      <p className="text-sm text-gray-600 mt-1">{r.comment}</p>
+                    )}
+                    {r.isVerifiedPurchase && (
+                      <span className="text-xs text-green-600 mt-1 inline-block">
+                        ✓ Verified purchase
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Write review */}
+              {user ? (
+                <div className="pt-2">
+                  {!showReviewForm ? (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setShowReviewForm(true)}
+                    >
+                      Write a review
+                    </Button>
+                  ) : (
+                    <div className="space-y-2 border rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Rating:</span>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => setReviewRating(n)}
+                            className={`text-lg ${
+                              n <= reviewRating ? "text-amber-500" : "text-gray-300"
+                            }`}
+                            aria-label={`Rate ${n} stars`}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                      <Input
+                        placeholder="Title (optional)"
+                        value={reviewTitle}
+                        onChange={(e) => setReviewTitle(e.target.value)}
+                      />
+                      <textarea
+                        className="w-full border rounded-md p-2 text-sm"
+                        rows="3"
+                        placeholder="Share your thoughts..."
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          disabled={submittingReview}
+                          onClick={async () => {
+                            setSubmittingReview(true);
+                            try {
+                              await createReview(sweet._id, {
+                                rating: reviewRating,
+                                title: reviewTitle,
+                                comment: reviewComment,
+                              });
+                              setShowReviewForm(false);
+                              setReviewTitle("");
+                              setReviewComment("");
+                              const [s, r] = await Promise.all([
+                                getReviewSummary(sweet._id),
+                                getReviews(sweet._id, 1, 5, reviewSort),
+                              ]);
+                              setSummary(s);
+                              setReviews(r?.reviews || []);
+                            } catch (err) {
+                              setReviewError(err.message || "Failed to submit review");
+                            } finally {
+                              setSubmittingReview(false);
+                            }
+                          }}
+                        >
+                          {submittingReview ? "Submitting..." : "Submit"}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setShowReviewForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  <a href="/login" className="text-amber-700 hover:underline">
+                    Log in
+                  </a>{" "}
+                  to write a review.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </Card>

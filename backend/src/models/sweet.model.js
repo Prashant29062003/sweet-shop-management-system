@@ -58,6 +58,17 @@ const sweetSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        averageRating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5,
+        },
+        reviewCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
         category: {
             type: String,
             trim: true,

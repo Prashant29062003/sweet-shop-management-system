@@ -53,6 +53,17 @@ const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
         <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{sweet.name}</h3>
       </div>
 
+      <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
+        <span className="text-amber-500">
+          {"★".repeat(Math.round(sweet.averageRating || 0))}
+          {"☆".repeat(5 - Math.round(sweet.averageRating || 0))}
+        </span>
+        <span>
+          {sweet.averageRating ? sweet.averageRating.toFixed(1) : "New"}{" "}
+          {sweet.reviewCount ? `(${sweet.reviewCount})` : ""}
+        </span>
+      </div>
+
       <p className="text-sm text-gray-600 mb-4 line-clamp-2">
         {sweet.description || "No description available"}
       </p>

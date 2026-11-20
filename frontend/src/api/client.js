@@ -30,6 +30,9 @@ class ApiClient {
   patch(url, body) {
     return this.request(url, { method: "PATCH", body: JSON.stringify(body) });
   }
+  delete(url) {
+    return this.request(url, { method: "DELETE" });
+  }
 }
 
 export const api = new ApiClient();

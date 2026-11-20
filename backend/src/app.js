@@ -24,6 +24,7 @@ import inventoryRoutes from "./modules/inventory/inventory.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import adminRouter from "./modules/users/admin.routes.js";
 import paymentRouter from "./modules/payments/payment.routes.js";
+import reviewRouter from "./modules/reviews/review.routes.js";
 
 
 // middlewares
@@ -37,6 +38,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/sweets", sweetRoutes);
 app.use("/api/v1/inventory", inventoryRoutes);
 app.use("/api/v1/payments", paymentRouter);
+app.use("/api/v1", reviewRouter);
 
 app.get("/", (req, res) => {
     res.send("Welcome to Sweet-Shop-Management-System.");
