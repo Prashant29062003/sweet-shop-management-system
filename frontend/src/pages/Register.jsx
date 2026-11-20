@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api } from "../api/client";
 import { Card, Input, Button, Alert } from "../components";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -36,7 +37,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md p-8">
         <h2 className="text-2xl font-bold mb-6 text-center text-amber-600">
           Create Account
@@ -108,6 +111,7 @@ const Register = () => {
           </Link>
         </p>
       </Card>
+    </div>
     </div>
   );
 };

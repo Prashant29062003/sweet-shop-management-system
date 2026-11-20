@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context";
-import { data, Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate, useSearchParams } from "react-router-dom";
+import Navbar from "./Navbar";
 import { Card, Input, Alert, Button } from "../components";
 import { api } from "../api/client";
 
@@ -14,6 +15,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const { login, fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard/sweets";
 
   const handleGoogleSuccess = async (CredentialResponse) => {
     setLoading(true);
@@ -26,7 +29,7 @@ const Login = () => {
       // Normalize auth state to the same flat shape as password login
       // (/auth/me returns { _id, email, username, role, permissions }).
       await fetchCurrentUser();
-      navigate("/dashboard/sweets");
+      navigate(redirectTo);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || "Google Login Failed");
     } finally {
@@ -47,7 +50,7 @@ const Login = () => {
 
     try {
       await login(email, password);
-      navigate("/dashboard/sweets");
+      navigate(redirectTo);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -56,19 +59,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-amber-50 via-orange-50 to-yellow-50 px-4">
-      <Card className="p-8 w-full max-w-md shadow-xl border-t-4 border-amber-600">
-        <div className="text-center mb-8">
-          <div className="text-6xl mb-4 animate-bounce-short">🍬</div>
-          <h1 className="text-3xl font-bold text-amber-900 mb-2 font-serif">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-linear-to-br from-amber-50 via-orange-50 to-yellow-50 px-4 py-8">
+      <Card className="p-6 w-full max-w-md shadow-xl border-t-4 border-amber-600">
+        <div className="text-center mb-5">
+          <div className="text-4xl mb-2 animate-bounce-short">🍬</div>
+          <h1 className="text-2xl font-bold text-amber-900 font-serif">
             Sweet Shop
           </h1>
-          <p className="text-gray-500 text-sm tracking-wide uppercase">
-            Management System
+          <p className="text-gray-500 text-xs tracking-wide uppercase">
+            Sign in to continue
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Email Address"
             type="email"
@@ -153,7 +158,7 @@ const Login = () => {
           </Button>
 
           {/* 3. Divider and Google Button */}
-          <div className="relative my-6">
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
@@ -187,26 +192,11 @@ const Login = () => {
           </p>
         </form>
 
-        <div className="mt-8 p-4 bg-amber-50/50 rounded-xl border border-amber-100">
-          <p className="text-[10px] uppercase font-bold text-amber-800 mb-3 tracking-widest">
-            System Demo Credentials
-          </p>
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">👑 Admin</span>
-              <code className="bg-white px-1 rounded border">
-                admin@sweetshop.com
-              </code>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">👤 Staff</span>
-              <code className="bg-white px-1 rounded border">
-                staff@sweetshop.com
-              </code>
-            </div>
-          </div>
-        </div>
+        <p className="text-center text-xs text-gray-400 mt-2">
+          Demo: admin@sweetshop.com / admin123
+        </p>
       </Card>
+    </div>
     </div>
   );
 };

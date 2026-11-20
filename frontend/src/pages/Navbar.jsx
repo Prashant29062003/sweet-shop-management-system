@@ -132,6 +132,8 @@ const Navbar = () => {
           {isGuest ? (
             <>
               <NavLink to="/sweets">Sweets</NavLink>
+              <NavLink to="/login">Login</NavLink>
+              <NavLink to="/register">Signup</NavLink>
             </>
           ) : (
             <>

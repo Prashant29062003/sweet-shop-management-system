@@ -4,6 +4,8 @@ import { Card, Badge, Button } from "./index";
 import { usePermission } from "../hooks/usePermission";
 import { PERMISSIONS } from "../constants/permissions";
 import { useCart } from "../context";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
   const canUpdateSweet = usePermission(PERMISSIONS.UPDATE_SWEET);
@@ -13,6 +15,9 @@ const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
   const isLowStock = sweet.quantityInStock < 10;
 
   const {addToCart} = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isGuest = !user;
 
   const imageSrc = sweet.imageUrl || sweet.image || `https://placehold.co/600x400?text=${encodeURIComponent(sweet.name)}`;
 
@@ -91,11 +96,19 @@ const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
             className="flex-1"
             onClick={(e) => {
               e.stopPropagation();
+              if (isGuest) {
+                navigate("/login?redirect=/sweets");
+                return;
+              }
               addToCart(sweet);
             }}
-            disabled={sweet.quantityInStock === 0}
+            disabled={sweet.quantityInStock === 0 && !isGuest}
           >
-            {sweet.quantityInStock === 0 ? "Out of Stock" : "Add to Basket"}
+            {sweet.quantityInStock === 0 && !isGuest
+              ? "Out of Stock"
+              : isGuest
+              ? "Login to Add"
+              : "Add to Basket"}
           </Button>
         )}
       </div>
