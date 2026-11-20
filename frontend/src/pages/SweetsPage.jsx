@@ -33,6 +33,8 @@ const SweetsPage = () => {
 
   const [searchItem, setSearchItem] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(9);
@@ -41,7 +43,7 @@ const SweetsPage = () => {
 
   // Debounce logic
   useEffect(() => {
-    if(searchItem) setIsTyping(true);
+    if (searchItem) setIsTyping(true);
 
     const handler = setTimeout(() => {
       setDebouncedSearch(searchItem);
@@ -54,7 +56,7 @@ const SweetsPage = () => {
   const fetchSweets = async () => {
     try {
       setLoading(true);
-      const response = await getSweets(currentPage, limit, debouncedSearch);
+      const response = await getSweets(currentPage, limit, debouncedSearch, category, sort);
       setSweets(response.sweets || []);
       setTotalPages(response.pagination.totalPages || 1);
     } catch (err) {
@@ -66,12 +68,12 @@ const SweetsPage = () => {
 
   useEffect(() => {
     fetchSweets();
-  }, [currentPage, debouncedSearch]);
+  }, [currentPage, debouncedSearch, category, sort]);
 
-  // Reset to page 1 if user tyepes anew search
+  // Reset to page 1 on search/category/sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, category, sort]);
 
   const handleCreateSweet = async (data) => {
     const res = await createSweet(data);
@@ -97,46 +99,114 @@ const SweetsPage = () => {
 
   if (loading && sweets.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="text-4xl mb-2">🍬</div>
-          <p className="text-gray-600">Loading sweets...</p>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-lg border p-4 animate-pulse space-y-3"
+            >
+              <div className="h-40 bg-gray-200 rounded-md" />
+              <div className="h-4 bg-gray-200 rounded w-3/4" />
+              <div className="h-3 bg-gray-200 rounded w-1/2" />
+              <div className="h-8 bg-gray-200 rounded" />
+            </div>
+          ))}
         </div>
+        <p className="text-center text-gray-500">Loading sweets...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Sweets Management
-          </h2>
-          <p className="text-gray-600 text-sm mt-1">
-            Manage your sweet inventory
-          </p>
-        </div>
-        {canCreateSweet && !showCreateForm && !editingSweet && (
-          <Button onClick={() => setShowCreateForm(true)}>
+    <div className="space-y-8">
+      {canCreateSweet && !showCreateForm && !editingSweet && (
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50 rounded-2xl p-6 md:p-8 border border-amber-100">
+
+
+          <Button onClick={() => setShowCreateForm(true)} className="self-start">
             + Create Sweet
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="flex max-w-lg">
-        <Input
-          placeholder="Search by sweet name or description..."
-          value={searchItem}
-          onChange={(e) => setSearchItem(e.target.value)}
-        />
-
-        {(isTyping || loading) && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-            <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      <Card className="p-4 md:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+          <div className="md:col-span-2 relative">
+            <Input
+              label="Search"
+              placeholder="Search by name, description or category..."
+              value={searchItem}
+              onChange={(e) => setSearchItem(e.target.value)}
+            />
+            {searchItem && (
+              <button
+                type="button"
+                onClick={() => setSearchItem("")}
+                className="absolute right-3 top-9 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+            {(isTyping || loading) && (
+              <div className="absolute right-8 top-9 flex items-center">
+                <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Category</label>
+            <select
+              className="p-2 border rounded-md bg-white"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="all">All Categories</option>
+              {["Indian", "International", "Chocolate", "Candy", "Bakery", "Dry Fruits", "Festival Special", "Other"].map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Sort</label>
+            <select
+              className="p-2 border rounded-md bg-white"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <option value="newest">Newest</option>
+              <option value="name_asc">Name A-Z</option>
+              <option value="name_desc">Name Z-A</option>
+              <option value="price_asc">Price Low-High</option>
+              <option value="price_desc">Price High-Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <span>
+            {sweets.length > 0
+              ? `Showing ${sweets.length} of ${totalPages * limit || sweets.length} sweets`
+              : "No sweets to display"}
+          </span>
+          {(searchItem || category !== "all" || sort !== "newest") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchItem("");
+                setCategory("all");
+                setSort("newest");
+              }}
+              className="text-amber-700 hover:underline font-medium"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      </Card>
 
       {error && <Alert variant="error">{error}</Alert>}
 
@@ -166,7 +236,7 @@ const SweetsPage = () => {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {sweets.map((sweet) => (
           <div
             key={sweet._id}
@@ -186,48 +256,47 @@ const SweetsPage = () => {
             />
           </div>
         ))}
-        
+
       </div>
-        <div className="flex flex-col items-center space-y-4 mt-10 pb-10">
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              variant="secondary"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
+      <div className="flex flex-col items-center space-y-4 mt-10 pb-10">
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant="secondary"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
 
-            <div className="flex gap-2">
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`w-10 h-10 rounded-full border ${
-                    currentPage === index + 1
-                      ? "bg-amber-500 text-white border-amber-500"
-                      : "bg-white text-gray-600 hover:bg-amber-50"
+          <div className="flex gap-2">
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`w-10 h-10 rounded-full border ${currentPage === index + 1
+                    ? "bg-amber-500 text-white border-amber-500"
+                    : "bg-white text-gray-600 hover:bg-amber-50"
                   }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-            </div>
-
-            <Button
-              variant="secondary"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
+              >
+                {index + 1}
+              </button>
+            ))}
           </div>
-          <p className="text-sm text-gray-500">
-            Showing Page {currentPage} of {totalPages}
-          </p>
+
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
         </div>
+        <p className="text-sm text-gray-500">
+          Showing Page {currentPage} of {totalPages}
+        </p>
+      </div>
 
       {previewSweet && (
         <SweetDetailModal
@@ -240,13 +309,29 @@ const SweetsPage = () => {
         <Card className="p-12 text-center">
           <div className="text-6xl mb-4">🍬</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {searchItem ? "No sweets match your search." : "No sweets yet"}
+            {searchItem || category !== "all"
+              ? "No sweets match your filters."
+              : "No sweets yet"}
           </h3>
           <p className="text-gray-600 mb-4">
-            {canCreateSweet
-              ? "Create your first sweet to get started"
-              : "No sweets have been added yet"}
+            {searchItem || category !== "all"
+              ? "Try a different search or clear filters."
+              : canCreateSweet
+                ? "Create your first sweet to get started"
+                : "No sweets have been added yet"}
           </p>
+          {(searchItem || category !== "all" || sort !== "newest") && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setSearchItem("");
+                setCategory("all");
+                setSort("newest");
+              }}
+            >
+              Clear filters
+            </Button>
+          )}
         </Card>
       )}
     </div>

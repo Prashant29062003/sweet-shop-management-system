@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../context";
 import { PERMISSIONS } from "../constants/permissions";
+import { Navbar } from "../pages";
 
 // Pages
 import {
@@ -34,6 +35,18 @@ const RootRouter = () => {
   return (
     <Routes>
       {/* --- PUBLIC ROUTES --- */}
+      <Route
+        path="/sweets"
+        element={
+          <div className="min-h-screen bg-gray-50">
+            <Navbar />
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <SweetsPage />
+            </main>
+          </div>
+        }
+      />
+
       <Route
         path="/login"
         element={!user ? <Login /> : <Navigate to="/dashboard" />}
@@ -112,7 +125,7 @@ const RootRouter = () => {
       {/* --- REDIRECTS & FALLBACKS --- */}
       <Route
         path="/"
-        element={<Navigate to={user ? "/dashboard" : "/login"} />}
+        element={<Navigate to="/sweets" replace />}
       />
     </Routes>
   );

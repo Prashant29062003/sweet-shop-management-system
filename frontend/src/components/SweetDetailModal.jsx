@@ -17,9 +17,12 @@ const SweetDetailModal = ({ sweet, onClose }) => {
         <div className="md:flex">
           <div className="md:w-1/2">
             <img
-              src={sweet.image || `https://placehold.co/800?text=${sweet.name}&font=roboto` || ""}
+              src={sweet.imageUrl || sweet.image || `https://placehold.co/800x600?text=${encodeURIComponent(sweet.name)}`}
               alt={sweet.name}
               className="w-full h-full object-cover rounded-l-lg"
+              onError={(e) => {
+                e.currentTarget.src = "https://placehold.co/800x600?text=Sweet";
+              }}
             />
           </div>
           <div className="p-6 md:w-1/2 space-y-4">

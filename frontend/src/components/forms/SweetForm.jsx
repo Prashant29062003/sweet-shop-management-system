@@ -7,6 +7,8 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
     description: sweet?.description || '',
     price: sweet?.price || '',
     quantityInStock: sweet?.quantityInStock || '',
+    imageUrl: sweet?.imageUrl || sweet?.image || '',
+    category: sweet?.category || 'Other',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,6 +29,18 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
     }
     if(Number.isNaN(quantity)){
         setError("Quantity must be a valid number.");
+        setLoading(false);
+        return;
+    }
+
+    if (
+      formData.imageUrl &&
+      !(
+        formData.imageUrl.startsWith("http://") ||
+        formData.imageUrl.startsWith("https://")
+      )
+    ) {
+        setError("Image URL must start with http:// or https://");
         setLoading(false);
         return;
     }
@@ -71,6 +85,29 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
           placeholder="Brief description of the sweet"
           disabled={loading}
         />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            label="Image URL"
+            value={formData.imageUrl}
+            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+            placeholder="https://..."
+            disabled={loading}
+          />
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Category</label>
+            <select
+              className="p-2 border rounded-md bg-white"
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              disabled={loading}
+            >
+              {["Indian","International","Chocolate","Candy","Bakery","Dry Fruits","Festival Special","Other"].map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Input

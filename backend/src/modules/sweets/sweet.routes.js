@@ -17,20 +17,10 @@ const router = express.Router();
  * GET ALL SWEETS
  * Any authenticated user
  */
-router.get(
-  "/",
-  verifyJWT,
-  getAllSweets  // ADD THIS ROUTE
-);
+// Public read endpoints (no auth required)
+router.get("/", getAllSweets);
 
-/**
- * GET SWEET BY ID
- */
-router.get(
-  "/:sweetId",
-  verifyJWT,
-  getSweetById
-);
+router.get("/:sweetId", getSweetById);
 
 /**
  * CREATE SWEET

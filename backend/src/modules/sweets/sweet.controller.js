@@ -8,13 +8,23 @@ import { asyncHandler } from "../../utils/async-handler.js";
  * Permission: CREATE_SWEET
  */
 export const createSweet = asyncHandler(async (req, res) => {
-  const { name, description, price, quantityInStock } = req.body;
+  const { name, description, price, quantityInStock, imageUrl, category } = req.body;
 
   if (!name || price == null || quantityInStock == null) {
     throw new ApiError(400, "Missing required fields");
   }
   if (quantityInStock < 0) {
     throw new ApiError(400, "Inventory cannot be negative");
+  }
+
+  // Basic security: only allow http(s) image URLs
+  if (
+    imageUrl &&
+    !(
+      imageUrl.startsWith("http://") || imageUrl.startsWith("https://")
+    )
+  ) {
+    throw new ApiError(400, "imageUrl must start with http:// or https://");
   }
 
   try {
@@ -24,6 +34,8 @@ export const createSweet = asyncHandler(async (req, res) => {
         $setOnInsert: {
           description,
           price,
+          imageUrl: imageUrl || "",
+          category: category || "Other",
           lastUpdatedByPermission: req.usedPermission,
         },
         $inc: { quantityInStock: Number(quantityInStock) },
@@ -36,6 +48,8 @@ export const createSweet = asyncHandler(async (req, res) => {
         description,
         price,
         quantityInStock,
+        imageUrl: imageUrl || "",
+        category: category || "Other",
         lastUpdatedByPermission: req.usedPermission,
       });
       await logAudit({
@@ -185,7 +199,7 @@ export const getSweetById = async (req, res) => {
  * Any authenticated user
  */
 export const getAllSweets = asyncHandler(async (req, res) => {
-  const { search, minPrice, maxPrice, inStock, all } = req.query;
+  const { search, minPrice, maxPrice, inStock, all, category, sort } = req.query;
 
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 9;
@@ -193,13 +207,20 @@ export const getAllSweets = asyncHandler(async (req, res) => {
 
   const filter = {};
 
-  // Name and description search (case-insensitive)
+  // Name and description search (case-insensitive, sanitized to avoid regex injection)
   if (search) {
+    const safeSearch = String(search).slice(0, 80).replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
     filter.$or = [
-     { name: { $regex: search, $options: "i" } },
-     { description: { $regex: search, $options: "i" } }
+     { name: { $regex: safeSearch, $options: "i" } },
+     { description: { $regex: safeSearch, $options: "i" } },
+     { category: { $regex: safeSearch, $options: "i" } }
     ];
   };
+
+  // Category filter
+  if (category && category !== "all") {
+    filter.category = category;
+  }
 
   // Price range
   if (minPrice || maxPrice) {
@@ -215,7 +236,13 @@ export const getAllSweets = asyncHandler(async (req, res) => {
 
   const totalSweets = await Sweet.countDocuments(filter);
 
-  const query = Sweet.find(filter).sort({ createdAt: -1 });
+  let sortOption = { createdAt: -1 };
+  if (sort === "price_asc") sortOption = { price: 1 };
+  else if (sort === "price_desc") sortOption = { price: -1 };
+  else if (sort === "name_asc") sortOption = { name: 1 };
+  else if (sort === "name_desc") sortOption = { name: -1 };
+
+  const query = Sweet.find(filter).sort(sortOption);
 
   if (all !== "true") {
     query.skip(skip).limit(limit);

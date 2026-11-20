@@ -14,11 +14,34 @@ const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
 
   const {addToCart} = useCart();
 
+  const imageSrc = sweet.imageUrl || sweet.image || `https://placehold.co/600x400?text=${encodeURIComponent(sweet.name)}`;
+
   return (
-    <Card className="p-4 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-lg font-semibold text-gray-900">{sweet.name}</h3>
-        {isLowStock && <Badge variant="danger">Low Stock</Badge>}
+    <Card className="p-4 hover:shadow-lg transition-shadow overflow-hidden">
+      <div className="relative mb-3">
+        <img
+          src={imageSrc}
+          alt={sweet.name}
+          className="w-full h-40 object-cover rounded-md bg-gray-100"
+          onError={(e) => {
+            e.currentTarget.src = "https://placehold.co/600x400?text=Sweet";
+          }}
+          loading="lazy"
+        />
+        {isLowStock && (
+          <span className="absolute top-2 right-2">
+            <Badge variant="danger">Low Stock</Badge>
+          </span>
+        )}
+        {sweet.category && (
+          <span className="absolute bottom-2 left-2">
+            <Badge variant="info">{sweet.category}</Badge>
+          </span>
+        )}
+      </div>
+
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{sweet.name}</h3>
       </div>
 
       <p className="text-sm text-gray-600 mb-4 line-clamp-2">

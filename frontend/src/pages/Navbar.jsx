@@ -7,10 +7,10 @@ import { useCart } from "../context";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const userData = user?.user ? user.user : (user || {});
-  
   const permissions = userData.permissions || [];
+  const isGuest = !user;
 
   const { cartItems } = useCart();
 
@@ -62,18 +62,35 @@ const Navbar = () => {
               Sweet Shop
             </h1>
             <div className="hidden md:flex space-x-2">
-              <NavItems />
+              {isGuest ? (
+                <>
+                  <NavLink to="/sweets">Sweets</NavLink>
+                </>
+              ) : (
+                <NavItems />
+              )}
             </div>
           </div>
           {/* Right Side Info */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex flex-col gap-0.5">
-              <Badge>{userData.username}</Badge>
-              <Badge variant="info">{userData.role.toUpperCase()}</Badge>
-            </div>
-            <Button variant="danger" size="sm" onClick={logout}>
-              Logout
-            </Button>
+            {isGuest ? (
+              <div className="flex items-center gap-2">
+                <NavLink to="/login">Login</NavLink>
+                <Button size="sm" onClick={() => (window.location.href = "/register")}>
+                  Sign Up
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-0.5">
+                  <Badge>{userData.username}</Badge>
+                  <Badge variant="info">{String(userData.role || "").toUpperCase()}</Badge>
+                </div>
+                <Button variant="danger" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -112,14 +129,22 @@ const Navbar = () => {
       {/* Mobile Sidebar/Menu overlay */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-b px-4 pt-2 pb-4 space-y-2 flex flex-col shadow-inner">
-          <NavItems />
-          <hr />
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-gray-500">{userData.email}</span>
-            <Button variant="danger" size="sm" onClick={logout}>
-              Logout
-            </Button>
-          </div>
+          {isGuest ? (
+            <>
+              <NavLink to="/sweets">Sweets</NavLink>
+            </>
+          ) : (
+            <>
+              <NavItems />
+              <hr />
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-gray-500">{userData.email}</span>
+                <Button variant="danger" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </nav>

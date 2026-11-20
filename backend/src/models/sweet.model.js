@@ -49,6 +49,26 @@ const sweetSchema = new mongoose.Schema(
                 message: "Inventory quantity must be an integer",
             },
         },
+        imageUrl: {
+            type: String,
+            trim: true,
+            default: "",
+        },
+        category: {
+            type: String,
+            trim: true,
+            enum: [
+                "Indian",
+                "International",
+                "Chocolate",
+                "Candy",
+                "Bakery",
+                "Dry Fruits",
+                "Festival Special",
+                "Other",
+            ],
+            default: "Other",
+        },
         // Array of tasks associated with this sweet (e.g., "Bake new batch", "Package for shipping")
         productionTasks: [taskSchema],
 
@@ -66,5 +86,7 @@ const sweetSchema = new mongoose.Schema(
 );
 
 sweetSchema.index({ price: 1 });
+sweetSchema.index({ category: 1 });
+sweetSchema.index({ name: "text", description: "text", category: "text" });
 
 export const Sweet = mongoose.model("Sweet", sweetSchema);

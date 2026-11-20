@@ -1,6 +1,9 @@
 import { api } from "./client";
 
-export const getSweets = (page = 1, limit = 9, search = "") => api.get(`/sweets?page=${page}&limit=${limit}&search=${search}`);
+export const getSweets = (page = 1, limit = 9, search = "", category = "all", sort = "newest") =>
+  api.get(
+    `/sweets?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&sort=${encodeURIComponent(sort)}`
+  );
 
 export const createSweet = (data) => api.post("/sweets", data);
 
