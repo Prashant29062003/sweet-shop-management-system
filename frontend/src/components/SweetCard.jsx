@@ -19,7 +19,11 @@ const SweetCard = ({ sweet, onEdit, onUpdateInventory }) => {
   const navigate = useNavigate();
   const isGuest = !user;
 
-  const imageSrc = sweet.imageUrl || sweet.image || `https://placehold.co/600x400?text=${encodeURIComponent(sweet.name)}`;
+  const imageSrc =
+    (Array.isArray(sweet.images) && sweet.images.length ? sweet.images[0] : null) ||
+    sweet.imageUrl ||
+    sweet.image ||
+    `https://placehold.co/600x400?text=${encodeURIComponent(sweet.name)}`;
 
   return (
     <Card className="p-4 hover:shadow-lg transition-shadow overflow-hidden">

@@ -54,6 +54,10 @@ const sweetSchema = new mongoose.Schema(
             trim: true,
             default: "",
         },
+        images: {
+            type: [String],
+            default: [],
+        },
         category: {
             type: String,
             trim: true,

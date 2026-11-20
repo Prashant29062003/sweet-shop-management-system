@@ -8,7 +8,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
  * Permission: CREATE_SWEET
  */
 export const createSweet = asyncHandler(async (req, res) => {
-  const { name, description, price, quantityInStock, imageUrl, category } = req.body;
+  const { name, description, price, quantityInStock, imageUrl, category, images } = req.body;
 
   if (!name || price == null || quantityInStock == null) {
     throw new ApiError(400, "Missing required fields");
@@ -27,6 +27,13 @@ export const createSweet = asyncHandler(async (req, res) => {
     throw new ApiError(400, "imageUrl must start with http:// or https://");
   }
 
+  const safeImages = Array.isArray(images)
+    ? images
+        .map((u) => String(u).trim())
+        .filter(Boolean)
+        .filter((u) => u.startsWith("http://") || u.startsWith("https://"))
+    : [];
+
   try {
     const sweet = await Sweet.findOneAndUpdate(
       { name },
@@ -34,7 +41,8 @@ export const createSweet = asyncHandler(async (req, res) => {
         $setOnInsert: {
           description,
           price,
-          imageUrl: imageUrl || "",
+          imageUrl: imageUrl || safeImages[0] || "",
+          images: safeImages,
           category: category || "Other",
           lastUpdatedByPermission: req.usedPermission,
         },
@@ -48,7 +56,8 @@ export const createSweet = asyncHandler(async (req, res) => {
         description,
         price,
         quantityInStock,
-        imageUrl: imageUrl || "",
+        imageUrl: imageUrl || safeImages[0] || "",
+        images: safeImages,
         category: category || "Other",
         lastUpdatedByPermission: req.usedPermission,
       });
@@ -79,15 +88,27 @@ export const createSweet = asyncHandler(async (req, res) => {
  */
 export const updateSweet = asyncHandler(async (req, res) => {
   const { sweetId } = req.params;
+  const { name, description, price, imageUrl, images, category, quantityInStock } =
+    req.body;
 
-  const sweet = await Sweet.findByIdAndUpdate(
-    sweetId,
-    {
-      ...req.body,
-      lastUpdatedByPermission: req.usedPermission,
-    },
-    { new: true }
-  );
+  const update = { lastUpdatedByPermission: req.usedPermission };
+  if (name !== undefined) update.name = name;
+  if (description !== undefined) update.description = description;
+  if (price !== undefined) update.price = price;
+  if (imageUrl !== undefined) update.imageUrl = imageUrl;
+  if (category !== undefined) update.category = category;
+  if (quantityInStock !== undefined) update.quantityInStock = quantityInStock;
+  if (Array.isArray(images)) {
+    update.images = images
+      .map((u) => String(u).trim())
+      .filter(Boolean)
+      .filter((u) => u.startsWith("http://") || u.startsWith("https://"));
+    if (!update.imageUrl && update.images.length) {
+      update.imageUrl = update.images[0];
+    }
+  }
+
+  const sweet = await Sweet.findByIdAndUpdate(sweetId, update, { new: true });
 
   if (!sweet) {
     throw new ApiError(404, "Sweet not found");

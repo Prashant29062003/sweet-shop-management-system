@@ -8,6 +8,10 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
     price: sweet?.price || '',
     quantityInStock: sweet?.quantityInStock || '',
     imageUrl: sweet?.imageUrl || sweet?.image || '',
+    imagesText:
+      Array.isArray(sweet?.images) && sweet.images.length
+        ? sweet.images.join("\n")
+        : sweet?.imageUrl || sweet?.image || "",
     category: sweet?.category || 'Other',
   });
   const [loading, setLoading] = useState(false);
@@ -45,11 +49,26 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
         return;
     }
 
+    const images = formData.imagesText
+      .split(/\n|,/)
+      .map((u) => u.trim())
+      .filter(Boolean);
+
+    if (images.some((u) => !(u.startsWith("http://") || u.startsWith("https://")))) {
+      setError("All image URLs must start with http:// or https://");
+      setLoading(false);
+      return;
+    }
+
     try {
       await onSubmit({
-        ...formData,
+        name: formData.name,
+        description: formData.description,
         price,
         quantityInStock: quantity,
+        imageUrl: formData.imageUrl,
+        images,
+        category: formData.category,
       });
       onCancel();
     } catch (err) {
@@ -127,6 +146,22 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
             onChange={(e) => setFormData({ ...formData, quantityInStock: e.target.value })}
             placeholder="0"
             disabled={loading || isEdit}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Gallery Images (one URL per line)
+          </label>
+          <textarea
+            className="w-full border rounded-md p-2 text-sm outline-none focus:ring-2 focus:ring-amber-500"
+            rows="3"
+            value={formData.imagesText}
+            onChange={(e) =>
+              setFormData({ ...formData, imagesText: e.target.value })
+            }
+            placeholder="https://...\nhttps://..."
+            disabled={loading}
           />
         </div>
 

@@ -57,9 +57,13 @@ async function seed() {
   console.log("Connected to DB");
 
   for (const s of sweets) {
+    const payload = {
+      ...s,
+      images: s.images || (s.imageUrl ? [s.imageUrl] : []),
+    };
     await Sweet.findOneAndUpdate(
       { name: s.name },
-      { $set: s },
+      { $set: payload },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
   }
