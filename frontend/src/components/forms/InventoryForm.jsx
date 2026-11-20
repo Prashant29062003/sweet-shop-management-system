@@ -5,7 +5,8 @@ import { useAuth } from '../../context';
 
 const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
   const { user } = useAuth();
-  if(user && user.role !== 'admin' && user.role !== 'staff'){
+  const role = user?.role || user?.user?.role;
+  if(user && role !== 'admin' && role !== 'staff'){
     return (
         <Card className='p-6'>
             <Alert>
@@ -27,7 +28,7 @@ const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
     const payload = {
         quantityInStock: parseInt(quantity),
         // Optional: Include user info for auditing in the update request
-        updatedBy: user ? user.id : 'anonymous', 
+        updatedBy: user ? user._id : 'anonymous', 
         updatedByEmail: user ? user.email : 'N/A'
     };
     try {

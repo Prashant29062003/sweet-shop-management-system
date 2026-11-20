@@ -7,12 +7,13 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
+  const userId = user?._id || user?.user?._id;
   const [cartItems, setCartItems] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (user?._id) {
-      const savedCart = localStorage.getItem(`cart_${user._id}`);
+    if (userId) {
+      const savedCart = localStorage.getItem(`cart_${userId}`);
       if (savedCart) {
         setCartItems(JSON.parse(savedCart));
       } else {
@@ -23,13 +24,13 @@ export const CartProvider = ({ children }) => {
       setCartItems([]);
       setIsLoaded(false);
     }
-  }, [user?._id]);
+  }, [userId]);
 
   useEffect(() => {
-    if (user?._id && isLoaded) {
-      localStorage.setItem(`cart_${user._id}`, JSON.stringify(cartItems));
+    if (userId && isLoaded) {
+      localStorage.setItem(`cart_${userId}`, JSON.stringify(cartItems));
     }
-  }, [cartItems, user?._id, isLoaded]);
+  }, [cartItems, userId, isLoaded]);
 
   const addToCart = (sweet) => {
     setCartItems((prev) => {

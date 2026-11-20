@@ -8,7 +8,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const userData = user?.user ? user.user : user;
+  const userData = user?.user ? user.user : (user || {});
   
   const permissions = userData.permissions || [];
 

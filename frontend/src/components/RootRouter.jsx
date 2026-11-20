@@ -21,7 +21,7 @@ import {
 
 const RootRouter = () => {
   const { user, loading } = useAuth();
-  const permissions = user?.permissions || [];
+  const permissions = user?.permissions || user?.user?.permissions || [];
 
   if (loading) {
     return (

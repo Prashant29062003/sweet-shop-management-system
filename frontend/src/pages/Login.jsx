@@ -12,23 +12,23 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login, setUser } = useAuth();
+  const { login, fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleGoogleSuccess = async (CredentialResponse) => {
     setLoading(true);
     setError("");
     try {
-      const response = await api.post("/auth/google", {
+      await api.post("/auth/google", {
         idToken: CredentialResponse.credential,
       });
 
-      if (response) {
-        setUser(response);
-        navigate("/dashboard/sweets");
-      }
+      // Normalize auth state to the same flat shape as password login
+      // (/auth/me returns { _id, email, username, role, permissions }).
+      await fetchCurrentUser();
+      navigate("/dashboard/sweets");
     } catch (err) {
-      setError(err.response?.message || "Google Login Failed");
+      setError(err?.response?.data?.message || err.message || "Google Login Failed");
     } finally {
       setLoading(false);
     }
