@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useRef } from "react";
 import { usePermission } from "../hooks/usePermission";
 import { PERMISSIONS } from "../constants/permissions";
 import {
@@ -39,6 +39,7 @@ const SweetsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(9);
 
+  const cacheRef = useRef(new Map());
   const canCreateSweet = usePermission(PERMISSIONS.CREATE_SWEET);
 
   // Debounce logic
@@ -53,12 +54,29 @@ const SweetsPage = () => {
     return () => clearTimeout(handler);
   }, [searchItem]);
 
+  const getQueryKey = () =>
+    `${currentPage}|${limit}|${debouncedSearch}|${category}|${sort}`;
+
   const fetchSweets = async () => {
+    const key = getQueryKey();
+    const cached = cacheRef.current.get(key);
+    if (cached) {
+      setSweets(cached.sweets || []);
+      setTotalPages(cached.totalPages || 1);
+      setError("");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
+      setError("");
       const response = await getSweets(currentPage, limit, debouncedSearch, category, sort);
-      setSweets(response.sweets || []);
-      setTotalPages(response.pagination.totalPages || 1);
+      const sweets = response.sweets || [];
+      const totalPages = response.pagination.totalPages || 1;
+      setSweets(sweets);
+      setTotalPages(totalPages);
+      cacheRef.current.set(key, { sweets, totalPages });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,8 +93,11 @@ const SweetsPage = () => {
     setCurrentPage(1);
   }, [debouncedSearch, category, sort]);
 
+  const invalidateCache = () => cacheRef.current.clear();
+
   const handleCreateSweet = async (data) => {
     const res = await createSweet(data);
+    invalidateCache();
     await fetchSweets();
     setShowCreateForm(false);
     return res;
@@ -85,6 +106,7 @@ const SweetsPage = () => {
   const handleUpdateSweet = async (data) => {
     await updateSweet(editingSweet._id, data);
     setEditingSweet(null);
+    invalidateCache();
     fetchSweets();
   };
 
@@ -94,6 +116,7 @@ const SweetsPage = () => {
     }
     await updateInventory(sweetId, data);
     setUpdatingInventory(null);
+    invalidateCache();
     fetchSweets();
   };
 
@@ -188,7 +211,9 @@ const SweetsPage = () => {
 
         <div className="flex items-center justify-between text-sm text-gray-500">
           <span>
-            {sweets.length > 0
+            {loading
+              ? "Loading..."
+              : sweets.length > 0
               ? `Showing ${sweets.length} of ${totalPages * limit || sweets.length} sweets`
               : "No sweets to display"}
           </span>
