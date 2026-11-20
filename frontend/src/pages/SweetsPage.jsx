@@ -17,6 +17,7 @@ import {
   SweetCard,
   Card,
   SweetDetailModal,
+  Modal,
 } from "../components/index";
 
 const SweetsPage = () => {
@@ -235,30 +236,49 @@ const SweetsPage = () => {
 
       {error && <Alert variant="error">{error}</Alert>}
 
-      {(showCreateForm || editingSweet) && (
-        <div className="bg-amber-50 p-6 rounded-lg border-2 border-amber-200 mb-8">
-          <h3 className="text-lg font-bold mb-4">
-            {editingSweet
-              ? `Editing: ${editingSweet.name}`
-              : "Create New Sweet"}
-          </h3>
+      {showCreateForm && (
+        <Modal
+          isOpen={showCreateForm}
+          onClose={() => setShowCreateForm(false)}
+          title="Create New Sweet"
+          size="lg"
+        >
+          <SweetForm
+            sweet={null}
+            onSubmit={handleCreateSweet}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        </Modal>
+      )}
+
+      {editingSweet && (
+        <Modal
+          isOpen={!!editingSweet}
+          onClose={() => setEditingSweet(null)}
+          title={`Editing: ${editingSweet.name}`}
+          size="lg"
+        >
           <SweetForm
             sweet={editingSweet}
-            onSubmit={editingSweet ? handleUpdateSweet : handleCreateSweet}
-            onCancel={() => {
-              setShowCreateForm(false);
-              setEditingSweet(null);
-            }}
+            onSubmit={handleUpdateSweet}
+            onCancel={() => setEditingSweet(null)}
           />
-        </div>
+        </Modal>
       )}
 
       {updatingInventory && (
-        <InventoryForm
-          sweet={updatingInventory}
-          onSubmit={handleUpdateInventory}
-          onCancel={() => setUpdatingInventory(null)}
-        />
+        <Modal
+          isOpen={!!updatingInventory}
+          onClose={() => setUpdatingInventory(null)}
+          title={`Update Inventory: ${updatingInventory.name}`}
+          size="md"
+        >
+          <InventoryForm
+            sweet={updatingInventory}
+            onSubmit={handleUpdateInventory}
+            onCancel={() => setUpdatingInventory(null)}
+          />
+        </Modal>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

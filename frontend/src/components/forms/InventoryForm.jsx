@@ -1,24 +1,25 @@
 import {React, useState} from 'react'
-import {Card, Input, Alert, Button } from '../index';
+import { Input, Alert, Button } from '../index';
 import { useAuth } from '../../context';
 
 
 const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
   const { user } = useAuth();
   const role = user?.role || user?.user?.role;
+  const [quantity, setQuantity] = useState(sweet?.quantityInStock || 0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
   if(user && role !== 'admin' && role !== 'staff'){
     return (
-        <Card className='p-6'>
+        <div className='p-6'>
             <Alert>
                 Access Denied. Only Admin and Staff can update inventory.
             </Alert>
             <Button onClick={onCancel} className="mt-4 w-full">Go back</Button>
-        </Card>
+        </div>
     )
   }
-  const [quantity, setQuantity] = useState(sweet?.quantityInStock || 0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async () => {
     setError('');
@@ -44,12 +45,7 @@ const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
     
 
   return (
-    <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-6 text-gray-900">
-        Update Inventory: {sweet.name}
-      </h3>
-
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Current Stock:</span>
@@ -77,7 +73,6 @@ const InventoryForm = ({ sweet, onSubmit, onCancel }) => {
           </Button>
         </div>
       </div>
-    </Card>
   );
 };
 

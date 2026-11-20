@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {Card, Input, Button, Alert} from "../index"
+import { Input, Button, Alert } from "../index"
 
 const SweetForm = ({ sweet, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -83,12 +83,7 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
   };
 
   return (
-    <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-6 text-gray-900">
-        {isEdit ? 'Edit Sweet' : 'Create New Sweet'}
-      </h3>
-
-      <div className="space-y-4">
+    <div className="space-y-4">
         <Input
           label="Sweet Name"
           value={formData.name}
@@ -176,7 +171,6 @@ const SweetForm = ({ sweet, onSubmit, onCancel }) => {
           </Button>
         </div>
       </div>
-    </Card>
   );
 };
 
