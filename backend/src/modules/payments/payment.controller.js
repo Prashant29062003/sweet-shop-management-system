@@ -60,9 +60,9 @@ export const createPayment = asyncHandler(async (req, res) => {
 });
 
 export const getUserPayments = asyncHandler(async (req, res) => {
-  const payments = await Payment.find({ user: req.user._id }).sort({
-    createdAt: -1,
-  });
+  const payments = await Payment.find({ user: req.user._id })
+    .populate("items.sweet", "name price imageUrl images")
+    .sort({ createdAt: -1 });
 
   return res
     .status(200)
@@ -72,6 +72,7 @@ export const getUserPayments = asyncHandler(async (req, res) => {
 export const adminGetAllPayments = asyncHandler(async (req, res) => {
   const payments = await Payment.find()
     .populate("user", "username email")
+    .populate("items.sweet", "name price imageUrl images")
     .sort({ createdAt: -1 });
 
   return res

@@ -8,7 +8,9 @@ import NavLink from "./NavLink";
 
 import SweetForm from "./forms/SweetForm";
 import InventoryForm from "./forms/InventoryForm";
+import Modal from "./Modal";
 import SweetDetailModal from "./SweetDetailModal";
+import PaymentDetailModal from "./PaymentDetailModal";
 import { InventoryReport } from "./InventoryReport";
 
 export {
@@ -22,5 +24,7 @@ export {
     Input,
     NavLink,
     SweetDetailModal,
+    Modal,
+    PaymentDetailModal,
     InventoryReport
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { Card, Button, Badge, Alert, Input } from "../components";
+import Modal from "./Modal";
 import { useAuth } from "../context/AuthContext";
 import {
   getReviews,
@@ -67,21 +68,8 @@ const SweetDetailModal = ({ sweet, onClose }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
-      <Card className="w-full max-w-5xl relative animate-in fade-in zoom-in duration-200 overflow-hidden">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-800 font-semibold text-xl rounded-full border border-gray-200 hover:bg-gray-100 w-9 h-9 flex items-center justify-center"
-          aria-label="Close preview"
-        >
-          ✕
-        </button>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+    <Modal isOpen={!!sweet} onClose={onClose} size="xl" title={null}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 -m-6">
           {/* Carousel */}
           <div className="bg-gray-100 p-4 md:p-6 flex flex-col">
             <div className="relative flex-1 flex items-center justify-center min-h-[260px]">
@@ -334,8 +322,7 @@ const SweetDetailModal = ({ sweet, onClose }) => {
             </div>
           </div>
         </div>
-      </Card>
-    </div>
+    </Modal>
   );
 };
 
