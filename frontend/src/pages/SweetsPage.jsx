@@ -327,6 +327,8 @@ const SweetsPage = () => {
         <SweetDetailModal
           sweet={previewSweet}
           onClose={() => setPreviewSweet(null)}
+          onEdit={(sweet) => setEditingSweet(sweet)}
+          onUpdateInventory={(sweet) => setUpdatingInventory(sweet)}
         />
       )}
 

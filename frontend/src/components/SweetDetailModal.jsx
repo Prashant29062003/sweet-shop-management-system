@@ -3,13 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Card, Button, Badge, Alert, Input } from "../components";
 import Modal from "./Modal";
 import { useAuth } from "../context/AuthContext";
+import { usePermission } from "../hooks/usePermission";
+import { PERMISSIONS } from "../constants/permissions";
 import {
   getReviews,
   getReviewSummary,
   createReview,
 } from "../api/review.api";
 
-const SweetDetailModal = ({ sweet, onClose }) => {
+const SweetDetailModal = ({ sweet, onClose, onEdit, onUpdateInventory }) => {
   if (!sweet) return null;
 
   const images =
@@ -21,6 +23,8 @@ const SweetDetailModal = ({ sweet, onClose }) => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const { user } = useAuth();
+  const canEdit = usePermission(PERMISSIONS.UPDATE_SWEET);
+  const canUpdateStock = usePermission(PERMISSIONS.UPDATE_INVENTORY);
   const [summary, setSummary] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [reviewSort, setReviewSort] = useState("newest");
@@ -160,6 +164,35 @@ const SweetDetailModal = ({ sweet, onClose }) => {
                 </span>
               </div>
             </div>
+
+            {(canEdit || canUpdateStock) && (
+              <div className="flex gap-2 pt-2">
+                {canEdit && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      onClose();
+                      onEdit?.(sweet);
+                    }}
+                  >
+                    Edit Details
+                  </Button>
+                )}
+                {canUpdateStock && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      onClose();
+                      onUpdateInventory?.(sweet);
+                    }}
+                  >
+                    Update Stock
+                  </Button>
+                )}
+              </div>
+            )}
 
             {/* Rating summary */}
             <div className="pt-4 border-t">
